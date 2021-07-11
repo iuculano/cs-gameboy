@@ -297,22 +297,22 @@ namespace axGB.CPU
                 new Instruction("RST 38H",                 0, 16, OP_0xFF),     // 0xFF
     
                 // Prefixed    
-                new Instruction("RLC B",                   1, 8,  OP_NOT_IMPL), // 0x00
-                new Instruction("RLC C",                   1, 8,  OP_NOT_IMPL), // 0x01
-                new Instruction("RLC D",                   1, 8,  OP_NOT_IMPL), // 0x02
-                new Instruction("RLC E",                   1, 8,  OP_NOT_IMPL), // 0x03
-                new Instruction("RLC H",                   1, 8,  OP_NOT_IMPL), // 0x04
-                new Instruction("RLC L",                   1, 8,  OP_NOT_IMPL), // 0x05
-                new Instruction("RLC (HL)",                1, 16, OP_NOT_IMPL), // 0x06
-                new Instruction("RLC A",                   1, 8,  OP_NOT_IMPL), // 0x07
-                new Instruction("RRC B",                   1, 8,  OP_NOT_IMPL), // 0x08
-                new Instruction("RRC C",                   1, 8,  OP_NOT_IMPL), // 0x09
-                new Instruction("RRC D",                   1, 8,  OP_NOT_IMPL), // 0x0A
-                new Instruction("RRC E",                   1, 8,  OP_NOT_IMPL), // 0x0B
-                new Instruction("RRC H",                   1, 8,  OP_NOT_IMPL), // 0x0C
-                new Instruction("RRC L",                   1, 8,  OP_NOT_IMPL), // 0x0D
-                new Instruction("RRC (HL)",                1, 16, OP_NOT_IMPL), // 0x0E
-                new Instruction("RRC A",                   1, 8,  OP_NOT_IMPL), // 0x0F
+                new Instruction("RLC B",                   1, 8,  OP_CB_0x00),  // 0x00
+                new Instruction("RLC C",                   1, 8,  OP_CB_0x01),  // 0x01
+                new Instruction("RLC D",                   1, 8,  OP_CB_0x02),  // 0x02
+                new Instruction("RLC E",                   1, 8,  OP_CB_0x03),  // 0x03
+                new Instruction("RLC H",                   1, 8,  OP_CB_0x04),  // 0x04
+                new Instruction("RLC L",                   1, 8,  OP_CB_0x05),  // 0x05
+                new Instruction("RLC (HL)",                1, 16, OP_CB_0x06),  // 0x06
+                new Instruction("RLC A",                   1, 8,  OP_CB_0x07),  // 0x07
+                new Instruction("RRC B",                   1, 8,  OP_CB_0x08),  // 0x08
+                new Instruction("RRC C",                   1, 8,  OP_CB_0x09),  // 0x09
+                new Instruction("RRC D",                   1, 8,  OP_CB_0x0A),  // 0x0A
+                new Instruction("RRC E",                   1, 8,  OP_CB_0x0B),  // 0x0B
+                new Instruction("RRC H",                   1, 8,  OP_CB_0x0C),  // 0x0C
+                new Instruction("RRC L",                   1, 8,  OP_CB_0x0D),  // 0x0D
+                new Instruction("RRC (HL)",                1, 16, OP_CB_0x0E),  // 0x0E
+                new Instruction("RRC A",                   1, 8,  OP_CB_0x0F),  // 0x0F
      
                 new Instruction("RL B",                    1, 8,  OP_CB_0x10),  // 0x10
                 new Instruction("RL C",                    1, 8,  OP_CB_0x11),  // 0x11
@@ -501,73 +501,73 @@ namespace axGB.CPU
                 new Instruction("RES 7, (HL)",             1, 16, OP_CB_0xBE),  // 0xBE
                 new Instruction("RES 7, A",                1, 8,  OP_CB_0xBF),  // 0xBF
      
-                new Instruction("SET 0, B",                1, 8,  OP_NOT_IMPL), // 0xC0
-                new Instruction("SET 0, C",                1, 8,  OP_NOT_IMPL), // 0xC1
-                new Instruction("SET 0, D",                1, 8,  OP_NOT_IMPL), // 0xC2
-                new Instruction("SET 0, E",                1, 8,  OP_NOT_IMPL), // 0xC3
-                new Instruction("SET 0, H",                1, 8,  OP_NOT_IMPL), // 0xC4
-                new Instruction("SET 0, L",                1, 8,  OP_NOT_IMPL), // 0xC5
-                new Instruction("SET 0, (HL)",             1, 16, OP_NOT_IMPL), // 0xC6
-                new Instruction("SET 0, A",                1, 8,  OP_NOT_IMPL), // 0xC7
-                new Instruction("SET 1, B",                1, 8,  OP_NOT_IMPL), // 0xC8
-                new Instruction("SET 1, C",                1, 8,  OP_NOT_IMPL), // 0xC9
-                new Instruction("SET 1, D",                1, 8,  OP_NOT_IMPL), // 0xCA
-                new Instruction("SET 1, E",                1, 8,  OP_NOT_IMPL), // 0xCB
-                new Instruction("SET 1, H",                1, 8,  OP_NOT_IMPL), // 0xCC
-                new Instruction("SET 1, L",                1, 8,  OP_NOT_IMPL), // 0xCD
-                new Instruction("SET 1, (HL)",             1, 16, OP_NOT_IMPL), // 0xCE
-                new Instruction("SET 1, A",                1, 8,  OP_NOT_IMPL), // 0xCF
+                new Instruction("SET 0, B",                1, 8,  OP_CB_0xC0), // 0xC0
+                new Instruction("SET 0, C",                1, 8,  OP_CB_0xC1), // 0xC1
+                new Instruction("SET 0, D",                1, 8,  OP_CB_0xC2), // 0xC2
+                new Instruction("SET 0, E",                1, 8,  OP_CB_0xC3), // 0xC3
+                new Instruction("SET 0, H",                1, 8,  OP_CB_0xC4), // 0xC4
+                new Instruction("SET 0, L",                1, 8,  OP_CB_0xC5), // 0xC5
+                new Instruction("SET 0, (HL)",             1, 16, OP_CB_0xC6), // 0xC6
+                new Instruction("SET 0, A",                1, 8,  OP_CB_0xC7), // 0xC7
+                new Instruction("SET 1, B",                1, 8,  OP_CB_0xC8), // 0xC8
+                new Instruction("SET 1, C",                1, 8,  OP_CB_0xC9), // 0xC9
+                new Instruction("SET 1, D",                1, 8,  OP_CB_0xCA), // 0xCA
+                new Instruction("SET 1, E",                1, 8,  OP_CB_0xCB), // 0xCB
+                new Instruction("SET 1, H",                1, 8,  OP_CB_0xCC), // 0xCC
+                new Instruction("SET 1, L",                1, 8,  OP_CB_0xCD), // 0xCD
+                new Instruction("SET 1, (HL)",             1, 16, OP_CB_0xCE), // 0xCE
+                new Instruction("SET 1, A",                1, 8,  OP_CB_0xCF), // 0xCF
      
-                new Instruction("SET 2, B",                1, 8,  OP_NOT_IMPL), // 0xD0
-                new Instruction("SET 2, C",                1, 8,  OP_NOT_IMPL), // 0xD1
-                new Instruction("SET 2, D",                1, 8,  OP_NOT_IMPL), // 0xD2
-                new Instruction("SET 2, E",                1, 8,  OP_NOT_IMPL), // 0xD3
-                new Instruction("SET 2, H",                1, 8,  OP_NOT_IMPL), // 0xD4
-                new Instruction("SET 2, L",                1, 8,  OP_NOT_IMPL), // 0xD5
-                new Instruction("SET 2, (HL)",             1, 16, OP_NOT_IMPL), // 0xD6
-                new Instruction("SET 2, A",                1, 8,  OP_NOT_IMPL), // 0xD7
-                new Instruction("SET 3, B",                1, 8,  OP_NOT_IMPL), // 0xD8
-                new Instruction("SET 3, C",                1, 8,  OP_NOT_IMPL), // 0xD9
-                new Instruction("SET 3, D",                1, 8,  OP_NOT_IMPL), // 0xDA
-                new Instruction("SET 3, E",                1, 8,  OP_NOT_IMPL), // 0xDB
-                new Instruction("SET 3, H",                1, 8,  OP_NOT_IMPL), // 0xDC
-                new Instruction("SET 3, L",                1, 8,  OP_NOT_IMPL), // 0xDD
-                new Instruction("SET 3, (HL)",             1, 16, OP_NOT_IMPL), // 0xDE
-                new Instruction("SET 3, A",                1, 8,  OP_NOT_IMPL), // 0xDF
+                new Instruction("SET 2, B",                1, 8,  OP_CB_0xD0), // 0xD0
+                new Instruction("SET 2, C",                1, 8,  OP_CB_0xD1), // 0xD1
+                new Instruction("SET 2, D",                1, 8,  OP_CB_0xD2), // 0xD2
+                new Instruction("SET 2, E",                1, 8,  OP_CB_0xD3), // 0xD3
+                new Instruction("SET 2, H",                1, 8,  OP_CB_0xD4), // 0xD4
+                new Instruction("SET 2, L",                1, 8,  OP_CB_0xD5), // 0xD5
+                new Instruction("SET 2, (HL)",             1, 16, OP_CB_0xD6), // 0xD6
+                new Instruction("SET 2, A",                1, 8,  OP_CB_0xD7), // 0xD7
+                new Instruction("SET 3, B",                1, 8,  OP_CB_0xD8), // 0xD8
+                new Instruction("SET 3, C",                1, 8,  OP_CB_0xD9), // 0xD9
+                new Instruction("SET 3, D",                1, 8,  OP_CB_0xDA), // 0xDA
+                new Instruction("SET 3, E",                1, 8,  OP_CB_0xDB), // 0xDB
+                new Instruction("SET 3, H",                1, 8,  OP_CB_0xDC), // 0xDC
+                new Instruction("SET 3, L",                1, 8,  OP_CB_0xDD), // 0xDD
+                new Instruction("SET 3, (HL)",             1, 16, OP_CB_0xDE), // 0xDE
+                new Instruction("SET 3, A",                1, 8,  OP_CB_0xDF), // 0xDF
      
-                new Instruction("SET 4, B",                1, 8,  OP_NOT_IMPL), // 0xE0
-                new Instruction("SET 4, C",                1, 8,  OP_NOT_IMPL), // 0xE1
-                new Instruction("SET 4, D",                1, 8,  OP_NOT_IMPL), // 0xE2
-                new Instruction("SET 4, E",                1, 8,  OP_NOT_IMPL), // 0xE3
-                new Instruction("SET 4, H",                1, 8,  OP_NOT_IMPL), // 0xE4
-                new Instruction("SET 4, L",                1, 8,  OP_NOT_IMPL), // 0xE5
-                new Instruction("SET 4, (HL)",             1, 16, OP_NOT_IMPL), // 0xE6
-                new Instruction("SET 4, A",                1, 8,  OP_NOT_IMPL), // 0xE7
-                new Instruction("SET 5, B",                1, 8,  OP_NOT_IMPL), // 0xE8
-                new Instruction("SET 5, C",                1, 8,  OP_NOT_IMPL), // 0xE9
-                new Instruction("SET 5, D",                1, 8,  OP_NOT_IMPL), // 0xEA
-                new Instruction("SET 5, E",                1, 8,  OP_NOT_IMPL), // 0xEB
-                new Instruction("SET 5, H",                1, 8,  OP_NOT_IMPL), // 0xEC
-                new Instruction("SET 5, L",                1, 8,  OP_NOT_IMPL), // 0xED
-                new Instruction("SET 5, (HL)",             1, 16, OP_NOT_IMPL), // 0xEE
-                new Instruction("SET 5, A",                1, 8,  OP_NOT_IMPL), // 0xEF
+                new Instruction("SET 4, B",                1, 8,  OP_CB_0xE0), // 0xE0
+                new Instruction("SET 4, C",                1, 8,  OP_CB_0xE1), // 0xE1
+                new Instruction("SET 4, D",                1, 8,  OP_CB_0xE2), // 0xE2
+                new Instruction("SET 4, E",                1, 8,  OP_CB_0xE3), // 0xE3
+                new Instruction("SET 4, H",                1, 8,  OP_CB_0xE4), // 0xE4
+                new Instruction("SET 4, L",                1, 8,  OP_CB_0xE5), // 0xE5
+                new Instruction("SET 4, (HL)",             1, 16, OP_CB_0xE6), // 0xE6
+                new Instruction("SET 4, A",                1, 8,  OP_CB_0xE7), // 0xE7
+                new Instruction("SET 5, B",                1, 8,  OP_CB_0xE8), // 0xE8
+                new Instruction("SET 5, C",                1, 8,  OP_CB_0xE9), // 0xE9
+                new Instruction("SET 5, D",                1, 8,  OP_CB_0xEA), // 0xEA
+                new Instruction("SET 5, E",                1, 8,  OP_CB_0xEB), // 0xEB
+                new Instruction("SET 5, H",                1, 8,  OP_CB_0xEC), // 0xEC
+                new Instruction("SET 5, L",                1, 8,  OP_CB_0xED), // 0xED
+                new Instruction("SET 5, (HL)",             1, 16, OP_CB_0xEE), // 0xEE
+                new Instruction("SET 5, A",                1, 8,  OP_CB_0xEF), // 0xEF
      
-                new Instruction("SET 6, B",                1, 8,  OP_NOT_IMPL), // 0xF0
-                new Instruction("SET 6, C",                1, 8,  OP_NOT_IMPL), // 0xF1
-                new Instruction("SET 6, D",                1, 8,  OP_NOT_IMPL), // 0xF2
-                new Instruction("SET 6, E",                1, 8,  OP_NOT_IMPL), // 0xF3
-                new Instruction("SET 6, H",                1, 8,  OP_NOT_IMPL), // 0xF4
-                new Instruction("SET 6, L",                1, 8,  OP_NOT_IMPL), // 0xF5
-                new Instruction("SET 6, (HL)",             1, 16, OP_NOT_IMPL), // 0xF6
-                new Instruction("SET 6, A",                1, 8,  OP_NOT_IMPL), // 0xF7
-                new Instruction("SET 7, B",                1, 8,  OP_NOT_IMPL), // 0xF8
-                new Instruction("SET 7, C",                1, 8,  OP_NOT_IMPL), // 0xF9
-                new Instruction("SET 7, D",                1, 8,  OP_NOT_IMPL), // 0xFA
-                new Instruction("SET 7, E",                1, 8,  OP_NOT_IMPL), // 0xFB
-                new Instruction("SET 7, H",                1, 8,  OP_NOT_IMPL), // 0xFC
-                new Instruction("SET 7, L",                1, 8,  OP_NOT_IMPL), // 0xFD
-                new Instruction("SET 7, (HL)",             1, 16, OP_NOT_IMPL), // 0xFE
-                new Instruction("SET 7, A",                1, 8,  OP_NOT_IMPL), // 0xFF
+                new Instruction("SET 6, B",                1, 8,  OP_CB_0xF0), // 0xF0
+                new Instruction("SET 6, C",                1, 8,  OP_CB_0xF1), // 0xF1
+                new Instruction("SET 6, D",                1, 8,  OP_CB_0xF2), // 0xF2
+                new Instruction("SET 6, E",                1, 8,  OP_CB_0xF3), // 0xF3
+                new Instruction("SET 6, H",                1, 8,  OP_CB_0xF4), // 0xF4
+                new Instruction("SET 6, L",                1, 8,  OP_CB_0xF5), // 0xF5
+                new Instruction("SET 6, (HL)",             1, 16, OP_CB_0xF6), // 0xF6
+                new Instruction("SET 6, A",                1, 8,  OP_CB_0xF7), // 0xF7
+                new Instruction("SET 7, B",                1, 8,  OP_CB_0xF8), // 0xF8
+                new Instruction("SET 7, C",                1, 8,  OP_CB_0xF9), // 0xF9
+                new Instruction("SET 7, D",                1, 8,  OP_CB_0xFA), // 0xFA
+                new Instruction("SET 7, E",                1, 8,  OP_CB_0xFB), // 0xFB
+                new Instruction("SET 7, H",                1, 8,  OP_CB_0xFC), // 0xFC
+                new Instruction("SET 7, L",                1, 8,  OP_CB_0xFD), // 0xFD
+                new Instruction("SET 7, (HL)",             1, 16, OP_CB_0xFE), // 0xFE
+                new Instruction("SET 7, A",                1, 8,  OP_CB_0xFF), // 0xFF
             };
         }
         
@@ -605,7 +605,7 @@ namespace axGB.CPU
         private void OP_0x04()               => processor.registers.B = Inc(processor.registers.B);
         private void OP_0x05()               => processor.registers.B = Dec(processor.registers.B);
         private void OP_0x06(byte operand)   => processor.registers.B = operand;
-        private void OP_0x07()               => Rlca();
+        private void OP_0x07()               => processor.registers.A = Rlc(processor.registers.A, false);
         private void OP_0x08(ushort operand) => processor.memory.WriteWord(operand, processor.registers.SP);
         private void OP_0x09()               => processor.registers.HL = Add(processor.registers.HL, processor.registers.BC);
         private void OP_0x0A()               => processor.registers.A = processor.memory.ReadByte(processor.registers.BC);
@@ -613,7 +613,7 @@ namespace axGB.CPU
         private void OP_0x0C()               => processor.registers.C = Inc(processor.registers.C);
         private void OP_0x0D()               => processor.registers.C = Dec(processor.registers.C);
         private void OP_0x0E(byte   operand) => processor.registers.C = operand;
-        private void OP_0x0F()               => Rrca();
+        private void OP_0x0F()               => processor.registers.A = Rrc(processor.registers.A, false);
 
         private void OP_0x10()               => Console.WriteLine("STOP stub");
         private void OP_0x11(ushort operand) => processor.registers.DE = operand;
@@ -622,7 +622,7 @@ namespace axGB.CPU
         private void OP_0x14()               => processor.registers.D = Inc(processor.registers.D);
         private void OP_0x15()               => processor.registers.D = Dec(processor.registers.D);
         private void OP_0x16(byte   operand) => processor.registers.D = operand;
-        private void OP_0x17()               => Rla();
+        private void OP_0x17()               => processor.registers.A = Rl(processor.registers.A, false);
         private void OP_0x18(byte   operand) => JumpRelative(operand);
         private void OP_0x19()               => processor.registers.HL = Add(processor.registers.HL, processor.registers.DE);
         private void OP_0x1A()               => processor.registers.A = processor.memory.ReadByte(processor.registers.DE);
@@ -630,7 +630,7 @@ namespace axGB.CPU
         private void OP_0x1C()               => processor.registers.E = Inc(processor.registers.E);
         private void OP_0x1D()               => processor.registers.E = Dec(processor.registers.E);
         private void OP_0x1E(byte   operand) => processor.registers.E = operand;
-        private void OP_0x1F()               => Rra();
+        private void OP_0x1F()               => processor.registers.A = Rr(processor.registers.A, false);
 
         private void OP_0x20(byte   operand) => JumpRelative(operand, Flags.Zero, false);
         private void OP_0x21(ushort operand) => processor.registers.HL = operand;
@@ -847,24 +847,57 @@ namespace axGB.CPU
         private void OP_0xFB()               => processor.interuptHandler.IME = true;
         private void OP_0xFE(byte operand)   => Cp(operand);
         private void OP_0xFF()               => OP_NOT_IMPL();
-        
 
-        private void OP_CB_0x10(byte fake)   => processor.registers.B = Rl(processor.registers.B);
-        private void OP_CB_0x11(byte fake)   => processor.registers.C = Rl(processor.registers.C);
-        private void OP_CB_0x12(byte fake)   => processor.registers.D = Rl(processor.registers.D);
-        private void OP_CB_0x13(byte fake)   => processor.registers.E = Rl(processor.registers.E);
-        private void OP_CB_0x14(byte fake)   => processor.registers.H = Rl(processor.registers.H);
-        private void OP_CB_0x15(byte fake)   => processor.registers.L = Rl(processor.registers.L);
-        private void OP_CB_0x16(byte fake)   => processor.memory.WriteByte(processor.registers.HL, Rl(processor.memory.ReadByte(processor.registers.HL)));
-        private void OP_CB_0x17(byte fake)   => processor.registers.A = Rl(processor.registers.A);
-        private void OP_CB_0x18(byte fake)   => processor.registers.B = Rr(processor.registers.B);
-        private void OP_CB_0x19(byte fake)   => processor.registers.C = Rr(processor.registers.C);
-        private void OP_CB_0x1A(byte fake)   => processor.registers.D = Rr(processor.registers.D);
-        private void OP_CB_0x1B(byte fake)   => processor.registers.E = Rr(processor.registers.E);
-        private void OP_CB_0x1C(byte fake)   => processor.registers.H = Rr(processor.registers.H);
-        private void OP_CB_0x1D(byte fake)   => processor.registers.L = Rr(processor.registers.L);
-        private void OP_CB_0x1E(byte fake)   => processor.memory.WriteByte(processor.registers.HL, Rr(processor.memory.ReadByte(processor.registers.HL)));
-        private void OP_CB_0x1F(byte fake)   => processor.registers.A = Rr(processor.registers.A);
+        private void OP_CB_0x00(byte fake)   => processor.registers.B = Rlc(processor.registers.B, true);
+        private void OP_CB_0x01(byte fake)   => processor.registers.C = Rlc(processor.registers.C, true);
+        private void OP_CB_0x02(byte fake)   => processor.registers.D = Rlc(processor.registers.D, true);
+        private void OP_CB_0x03(byte fake)   => processor.registers.E = Rlc(processor.registers.E, true);
+        private void OP_CB_0x04(byte fake)   => processor.registers.H = Rlc(processor.registers.H, true);
+        private void OP_CB_0x05(byte fake)   => processor.registers.L = Rlc(processor.registers.L, true);
+        private void OP_CB_0x06(byte fake)   => processor.memory.WriteByte(processor.registers.HL, Rlc(processor.memory.ReadByte(processor.registers.HL), true));
+        private void OP_CB_0x07(byte fake)   => processor.registers.A = Rlc(processor.registers.A, true);
+        private void OP_CB_0x08(byte fake)   => processor.registers.B = Rrc(processor.registers.B, true);
+        private void OP_CB_0x09(byte fake)   => processor.registers.C = Rrc(processor.registers.C, true);
+        private void OP_CB_0x0A(byte fake)   => processor.registers.D = Rrc(processor.registers.D, true);
+        private void OP_CB_0x0B(byte fake)   => processor.registers.E = Rrc(processor.registers.E, true);
+        private void OP_CB_0x0C(byte fake)   => processor.registers.H = Rrc(processor.registers.H, true);
+        private void OP_CB_0x0D(byte fake)   => processor.registers.L = Rrc(processor.registers.L, true);
+        private void OP_CB_0x0E(byte fake)   => processor.memory.WriteByte(processor.registers.HL, Rrc(processor.memory.ReadByte(processor.registers.HL), true));
+        private void OP_CB_0x0F(byte fake)   => processor.registers.A = Rrc(processor.registers.A, true);
+
+        private void OP_CB_0x10(byte fake)   => processor.registers.B = Rl(processor.registers.B, true);
+        private void OP_CB_0x11(byte fake)   => processor.registers.C = Rl(processor.registers.C, true);
+        private void OP_CB_0x12(byte fake)   => processor.registers.D = Rl(processor.registers.D, true);
+        private void OP_CB_0x13(byte fake)   => processor.registers.E = Rl(processor.registers.E, true);
+        private void OP_CB_0x14(byte fake)   => processor.registers.H = Rl(processor.registers.H, true);
+        private void OP_CB_0x15(byte fake)   => processor.registers.L = Rl(processor.registers.L, true);
+        private void OP_CB_0x16(byte fake)   => processor.memory.WriteByte(processor.registers.HL, Rl(processor.memory.ReadByte(processor.registers.HL), true));
+        private void OP_CB_0x17(byte fake)   => processor.registers.A = Rl(processor.registers.A, true);
+        private void OP_CB_0x18(byte fake)   => processor.registers.B = Rr(processor.registers.B, true);
+        private void OP_CB_0x19(byte fake)   => processor.registers.C = Rr(processor.registers.C, true);
+        private void OP_CB_0x1A(byte fake)   => processor.registers.D = Rr(processor.registers.D, true);
+        private void OP_CB_0x1B(byte fake)   => processor.registers.E = Rr(processor.registers.E, true);
+        private void OP_CB_0x1C(byte fake)   => processor.registers.H = Rr(processor.registers.H, true);
+        private void OP_CB_0x1D(byte fake)   => processor.registers.L = Rr(processor.registers.L, true);
+        private void OP_CB_0x1E(byte fake)   => processor.memory.WriteByte(processor.registers.HL, Rr(processor.memory.ReadByte(processor.registers.HL), true));
+        private void OP_CB_0x1F(byte fake)   => processor.registers.A = Rr(processor.registers.A, true);
+
+        private void OP_CB_0x20(byte fake)   => processor.registers.B = Sla(processor.registers.B);
+        private void OP_CB_0x21(byte fake)   => processor.registers.C = Sla(processor.registers.C);
+        private void OP_CB_0x22(byte fake)   => processor.registers.D = Sla(processor.registers.D);
+        private void OP_CB_0x23(byte fake)   => processor.registers.E = Sla(processor.registers.E);
+        private void OP_CB_0x24(byte fake)   => processor.registers.H = Sla(processor.registers.H);
+        private void OP_CB_0x25(byte fake)   => processor.registers.L = Sla(processor.registers.L);
+        private void OP_CB_0x26(byte fake)   => processor.memory.WriteByte(processor.registers.HL, Sla(processor.memory.ReadByte(processor.registers.HL)));
+        private void OP_CB_0x27(byte fake)   => processor.registers.A = Sra(processor.registers.A);
+        private void OP_CB_0x28(byte fake)   => processor.registers.B = Sra(processor.registers.B);
+        private void OP_CB_0x29(byte fake)   => processor.registers.C = Sra(processor.registers.C);
+        private void OP_CB_0x2A(byte fake)   => processor.registers.D = Sra(processor.registers.D);
+        private void OP_CB_0x2B(byte fake)   => processor.registers.E = Sra(processor.registers.E);
+        private void OP_CB_0x2C(byte fake)   => processor.registers.H = Sra(processor.registers.H);
+        private void OP_CB_0x2D(byte fake)   => processor.registers.L = Sra(processor.registers.L);
+        private void OP_CB_0x2E(byte fake)   => processor.memory.WriteByte(processor.registers.HL, Sra(processor.memory.ReadByte(processor.registers.HL)));
+        private void OP_CB_0x2F(byte fake)   => processor.registers.A = Sra(processor.registers.A);
 
         private void OP_CB_0x30(byte fake)   => processor.registers.B = Swap(processor.registers.B);
         private void OP_CB_0x31(byte fake)   => processor.registers.C = Swap(processor.registers.C);
@@ -1019,5 +1052,73 @@ namespace axGB.CPU
         private void OP_CB_0xBD(byte fake)   => processor.registers.L = Res(7, processor.registers.L);
         private void OP_CB_0xBE(byte fake)   => processor.memory.WriteByte(processor.registers.HL, Res(7, processor.memory.ReadByte(processor.registers.HL)));
         private void OP_CB_0xBF(byte fake)   => processor.registers.A = Res(7, processor.registers.A);
+
+        private void OP_CB_0xC0(byte fake)   => processor.registers.B = Set(0, processor.registers.B);
+        private void OP_CB_0xC1(byte fake)   => processor.registers.C = Set(0, processor.registers.C);
+        private void OP_CB_0xC2(byte fake)   => processor.registers.D = Set(0, processor.registers.D);
+        private void OP_CB_0xC3(byte fake)   => processor.registers.E = Set(0, processor.registers.E);
+        private void OP_CB_0xC4(byte fake)   => processor.registers.H = Set(0, processor.registers.H);
+        private void OP_CB_0xC5(byte fake)   => processor.registers.L = Set(0, processor.registers.L);
+        private void OP_CB_0xC6(byte fake)   => processor.memory.WriteByte(processor.registers.HL, Set(0, processor.memory.ReadByte(processor.registers.HL)));
+        private void OP_CB_0xC7(byte fake)   => processor.registers.A = Set(0, processor.registers.A);
+        private void OP_CB_0xC8(byte fake)   => processor.registers.B = Set(1, processor.registers.B);
+        private void OP_CB_0xC9(byte fake)   => processor.registers.C = Set(1, processor.registers.C);
+        private void OP_CB_0xCA(byte fake)   => processor.registers.D = Set(1, processor.registers.D);
+        private void OP_CB_0xCB(byte fake)   => processor.registers.E = Set(1, processor.registers.E);
+        private void OP_CB_0xCC(byte fake)   => processor.registers.H = Set(1, processor.registers.H);
+        private void OP_CB_0xCD(byte fake)   => processor.registers.L = Set(1, processor.registers.L);
+        private void OP_CB_0xCE(byte fake)   => processor.memory.WriteByte(processor.registers.HL, Set(1, processor.memory.ReadByte(processor.registers.HL)));
+        private void OP_CB_0xCF(byte fake)   => processor.registers.A = Set(1, processor.registers.A);
+                                             
+        private void OP_CB_0xD0(byte fake)   => processor.registers.B = Set(2, processor.registers.B);
+        private void OP_CB_0xD1(byte fake)   => processor.registers.C = Set(2, processor.registers.C);
+        private void OP_CB_0xD2(byte fake)   => processor.registers.D = Set(2, processor.registers.D);
+        private void OP_CB_0xD3(byte fake)   => processor.registers.E = Set(2, processor.registers.E);
+        private void OP_CB_0xD4(byte fake)   => processor.registers.H = Set(2, processor.registers.H);
+        private void OP_CB_0xD5(byte fake)   => processor.registers.L = Set(2, processor.registers.L);
+        private void OP_CB_0xD6(byte fake)   => processor.memory.WriteByte(processor.registers.HL, Set(2, processor.memory.ReadByte(processor.registers.HL)));
+        private void OP_CB_0xD7(byte fake)   => processor.registers.A = Set(2, processor.registers.A);
+        private void OP_CB_0xD8(byte fake)   => processor.registers.B = Set(3, processor.registers.B);
+        private void OP_CB_0xD9(byte fake)   => processor.registers.C = Set(3, processor.registers.C);
+        private void OP_CB_0xDA(byte fake)   => processor.registers.D = Set(3, processor.registers.D);
+        private void OP_CB_0xDB(byte fake)   => processor.registers.E = Set(3, processor.registers.E);
+        private void OP_CB_0xDC(byte fake)   => processor.registers.H = Set(3, processor.registers.H);
+        private void OP_CB_0xDD(byte fake)   => processor.registers.L = Set(3, processor.registers.L);
+        private void OP_CB_0xDE(byte fake)   => processor.memory.WriteByte(processor.registers.HL, Set(3, processor.memory.ReadByte(processor.registers.HL)));
+        private void OP_CB_0xDF(byte fake)   => processor.registers.A = Set(3, processor.registers.A);
+                                             
+        private void OP_CB_0xE0(byte fake)   => processor.registers.B = Set(4, processor.registers.B);
+        private void OP_CB_0xE1(byte fake)   => processor.registers.C = Set(4, processor.registers.C);
+        private void OP_CB_0xE2(byte fake)   => processor.registers.D = Set(4, processor.registers.D);
+        private void OP_CB_0xE3(byte fake)   => processor.registers.E = Set(4, processor.registers.E);
+        private void OP_CB_0xE4(byte fake)   => processor.registers.H = Set(4, processor.registers.H);
+        private void OP_CB_0xE5(byte fake)   => processor.registers.L = Set(4, processor.registers.L);
+        private void OP_CB_0xE6(byte fake)   => processor.memory.WriteByte(processor.registers.HL, Set(4, processor.memory.ReadByte(processor.registers.HL)));
+        private void OP_CB_0xE7(byte fake)   => processor.registers.A = Set(4, processor.registers.A);
+        private void OP_CB_0xE8(byte fake)   => processor.registers.B = Set(5, processor.registers.B);
+        private void OP_CB_0xE9(byte fake)   => processor.registers.C = Set(5, processor.registers.C);
+        private void OP_CB_0xEA(byte fake)   => processor.registers.D = Set(5, processor.registers.D);
+        private void OP_CB_0xEB(byte fake)   => processor.registers.E = Set(5, processor.registers.E);
+        private void OP_CB_0xEC(byte fake)   => processor.registers.H = Set(5, processor.registers.H);
+        private void OP_CB_0xED(byte fake)   => processor.registers.L = Set(5, processor.registers.L);
+        private void OP_CB_0xEE(byte fake)   => processor.memory.WriteByte(processor.registers.HL, Set(5, processor.memory.ReadByte(processor.registers.HL)));
+        private void OP_CB_0xEF(byte fake)   => processor.registers.A = Set(5, processor.registers.A);
+                                             
+        private void OP_CB_0xF0(byte fake)   => processor.registers.B = Set(6, processor.registers.B);
+        private void OP_CB_0xF1(byte fake)   => processor.registers.C = Set(6, processor.registers.C);
+        private void OP_CB_0xF2(byte fake)   => processor.registers.D = Set(6, processor.registers.D);
+        private void OP_CB_0xF3(byte fake)   => processor.registers.E = Set(6, processor.registers.E);
+        private void OP_CB_0xF4(byte fake)   => processor.registers.H = Set(6, processor.registers.H);
+        private void OP_CB_0xF5(byte fake)   => processor.registers.L = Set(6, processor.registers.L);
+        private void OP_CB_0xF6(byte fake)   => processor.memory.WriteByte(processor.registers.HL, Set(6, processor.memory.ReadByte(processor.registers.HL)));
+        private void OP_CB_0xF7(byte fake)   => processor.registers.A = Set(6, processor.registers.A);
+        private void OP_CB_0xF8(byte fake)   => processor.registers.B = Set(7, processor.registers.B);
+        private void OP_CB_0xF9(byte fake)   => processor.registers.C = Set(7, processor.registers.C);
+        private void OP_CB_0xFA(byte fake)   => processor.registers.D = Set(7, processor.registers.D);
+        private void OP_CB_0xFB(byte fake)   => processor.registers.E = Set(7, processor.registers.E);
+        private void OP_CB_0xFC(byte fake)   => processor.registers.H = Set(7, processor.registers.H);
+        private void OP_CB_0xFD(byte fake)   => processor.registers.L = Set(7, processor.registers.L);
+        private void OP_CB_0xFE(byte fake)   => processor.memory.WriteByte(processor.registers.HL, Set(7, processor.memory.ReadByte(processor.registers.HL)));
+        private void OP_CB_0xFF(byte fake)   => processor.registers.A = Set(7, processor.registers.A);
     }
 }
