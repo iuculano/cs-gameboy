@@ -288,7 +288,7 @@ namespace axGB.CPU
                 new Instruction("OR ${0:x2}",              1, 8,  OP_0xF6),     // 0xF6
                 new Instruction("RST 30H",                 0, 16, OP_NOT_IMPL), // 0xF7
                 new Instruction("LD HL, SP + ${0:x2}",     1, 12, OP_NOT_IMPL), // 0xF8
-                new Instruction("LD SP, HL",               0, 8,  OP_NOT_IMPL), // 0xF9
+                new Instruction("LD SP, HL",               0, 8,  OP_0xF9),     // 0xF9
                 new Instruction("LD A, (${0:x4})",         2, 16, OP_0xFA),     // 0xFA
                 new Instruction("EI",                      0, 4,  OP_0xFB),     // 0xFB
                 new Instruction("INVALID_OPCODE",          0, 0,  OP_INVALID),  // 0xFC
@@ -843,6 +843,7 @@ namespace axGB.CPU
         private void OP_0xF3()               => processor.interuptHandler.IME = false;
         private void OP_0xF5()               => Push(processor.registers.AF);
         private void OP_0xF6(byte   operand) => Or(operand);
+        private void OP_0xF9()               => processor.registers.SP = processor.registers.HL;
         private void OP_0xFA(ushort operand) => processor.registers.A = processor.memory.ReadByte(operand);
         private void OP_0xFB()               => processor.interuptHandler.IME = true;
         private void OP_0xFE(byte operand)   => Cp(operand);
