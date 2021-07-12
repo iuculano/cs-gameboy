@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 
 
 namespace axGB.CPU
@@ -221,34 +221,34 @@ namespace axGB.CPU
 
         private byte Sla(byte value)
         {
-            var bit7   = value & 0b_10000000;
-            var result = value << 1;
+            var bit7   = (byte)(value >> 7);
+            var result = (byte)(value << 1);
 
             var zero   = result == 0;
-            var carry  = bit7   == 0;
+            var carry  = bit7   == 1;
 
             SetFlags(zero, Flags.Zero);
             ClearFlags(Flags.Subtract);
             ClearFlags(Flags.HalfCarry);
             SetFlags(carry, Flags.Carry);
 
-            return (byte)result;
+            return result;
         }
 
         private byte Sra(byte value)
         {
             var bit0   = value & 0b_00000001;
-            var result = value >> 1;
+            var result = (byte)(value >> 1 | value & 0b_10000000); // Didn't expect this, but bit 7 stays the same
 
             var zero   = result == 0;
-            var carry  = bit0   == 0;
+            var carry  = bit0   == 1;
 
             SetFlags(zero, Flags.Zero);
             ClearFlags(Flags.Subtract);
             ClearFlags(Flags.HalfCarry);
             SetFlags(carry, Flags.Carry);
 
-            return (byte)result;
+            return result;
         }
 
         private byte Swap(byte value)
