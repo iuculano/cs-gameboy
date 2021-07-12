@@ -331,22 +331,22 @@ namespace axGB.CPU
                 new Instruction("RR (HL)",                 1, 16, OP_CB_0x1E),  // 0x1E
                 new Instruction("RR A",                    1, 8,  OP_CB_0x1F),  // 0x1F
      
-                new Instruction("SLA B",                   1, 8,  OP_NOT_IMPL), // 0x20
-                new Instruction("SLA C",                   1, 8,  OP_NOT_IMPL), // 0x21
-                new Instruction("SLA D",                   1, 8,  OP_NOT_IMPL), // 0x22
-                new Instruction("SLA E",                   1, 8,  OP_NOT_IMPL), // 0x23
-                new Instruction("SLA H",                   1, 8,  OP_NOT_IMPL), // 0x24
-                new Instruction("SLA L",                   1, 8,  OP_NOT_IMPL), // 0x25
-                new Instruction("SLA (HL)",                1, 16, OP_NOT_IMPL), // 0x26
-                new Instruction("SLA A",                   1, 8,  OP_NOT_IMPL), // 0x27
-                new Instruction("SRA B",                   1, 8,  OP_NOT_IMPL), // 0x28
-                new Instruction("SRA C",                   1, 8,  OP_NOT_IMPL), // 0x29
-                new Instruction("SRA D",                   1, 8,  OP_NOT_IMPL), // 0x2A
-                new Instruction("SRA E",                   1, 8,  OP_NOT_IMPL), // 0x2B
-                new Instruction("SRA H",                   1, 8,  OP_NOT_IMPL), // 0x2C
-                new Instruction("SRA L",                   1, 8,  OP_NOT_IMPL), // 0x2D
-                new Instruction("SRA (HL)",                1, 16, OP_NOT_IMPL), // 0x2E
-                new Instruction("SRA A",                   1, 8,  OP_NOT_IMPL), // 0x2F
+                new Instruction("SLA B",                   1, 8,  OP_CB_0x20),  // 0x20
+                new Instruction("SLA C",                   1, 8,  OP_CB_0x21),  // 0x21
+                new Instruction("SLA D",                   1, 8,  OP_CB_0x22),  // 0x22
+                new Instruction("SLA E",                   1, 8,  OP_CB_0x23),  // 0x23
+                new Instruction("SLA H",                   1, 8,  OP_CB_0x24),  // 0x24
+                new Instruction("SLA L",                   1, 8,  OP_CB_0x25),  // 0x25
+                new Instruction("SLA (HL)",                1, 16, OP_CB_0x26),  // 0x26
+                new Instruction("SLA A",                   1, 8,  OP_CB_0x27),  // 0x27
+                new Instruction("SRA B",                   1, 8,  OP_CB_0x28),  // 0x28
+                new Instruction("SRA C",                   1, 8,  OP_CB_0x29),  // 0x29
+                new Instruction("SRA D",                   1, 8,  OP_CB_0x2A),  // 0x2A
+                new Instruction("SRA E",                   1, 8,  OP_CB_0x2B),  // 0x2B
+                new Instruction("SRA H",                   1, 8,  OP_CB_0x2C),  // 0x2C
+                new Instruction("SRA L",                   1, 8,  OP_CB_0x2D),  // 0x2D
+                new Instruction("SRA (HL)",                1, 16, OP_CB_0x2E),  // 0x2E
+                new Instruction("SRA A",                   1, 8,  OP_CB_0x2F),  // 0x2F
     
                 new Instruction("SWAP B",                  1, 8,  OP_CB_0x30),  // 0x30
                 new Instruction("SWAP C",                  1, 8,  OP_CB_0x31),  // 0x31
@@ -890,7 +890,7 @@ namespace axGB.CPU
         private void OP_CB_0x24(byte fake)   => processor.registers.H = Sla(processor.registers.H);
         private void OP_CB_0x25(byte fake)   => processor.registers.L = Sla(processor.registers.L);
         private void OP_CB_0x26(byte fake)   => processor.memory.WriteByte(processor.registers.HL, Sla(processor.memory.ReadByte(processor.registers.HL)));
-        private void OP_CB_0x27(byte fake)   => processor.registers.A = Sra(processor.registers.A);
+        private void OP_CB_0x27(byte fake)   => processor.registers.A = Sla(processor.registers.A);
         private void OP_CB_0x28(byte fake)   => processor.registers.B = Sra(processor.registers.B);
         private void OP_CB_0x29(byte fake)   => processor.registers.C = Sra(processor.registers.C);
         private void OP_CB_0x2A(byte fake)   => processor.registers.D = Sra(processor.registers.D);
@@ -910,13 +910,13 @@ namespace axGB.CPU
         private void OP_CB_0x37(byte fake)   => processor.registers.A = Swap(processor.registers.A);
 
         private void OP_CB_0x38(byte fake)   => processor.registers.B = Srl(processor.registers.B);
-        private void OP_CB_0x39(byte fake)   => processor.registers.B = Srl(processor.registers.C);
-        private void OP_CB_0x3A(byte fake)   => processor.registers.B = Srl(processor.registers.D);
-        private void OP_CB_0x3B(byte fake)   => processor.registers.B = Srl(processor.registers.E);
-        private void OP_CB_0x3C(byte fake)   => processor.registers.B = Srl(processor.registers.H);
-        private void OP_CB_0x3D(byte fake)   => processor.registers.B = Srl(processor.registers.L);
+        private void OP_CB_0x39(byte fake)   => processor.registers.C = Srl(processor.registers.C);
+        private void OP_CB_0x3A(byte fake)   => processor.registers.D = Srl(processor.registers.D);
+        private void OP_CB_0x3B(byte fake)   => processor.registers.E = Srl(processor.registers.E);
+        private void OP_CB_0x3C(byte fake)   => processor.registers.H = Srl(processor.registers.H);
+        private void OP_CB_0x3D(byte fake)   => processor.registers.L = Srl(processor.registers.L);
         private void OP_CB_0x3E(byte fake)   => processor.memory.WriteByte(processor.registers.HL, Srl(processor.memory.ReadByte(processor.registers.HL)));
-        private void OP_CB_0x3F(byte fake)   => processor.registers.B = Srl(processor.registers.B);
+        private void OP_CB_0x3F(byte fake)   => processor.registers.A = Srl(processor.registers.A);
 
         private void OP_CB_0x40(byte fake)   => Bit(0, processor.registers.B);
         private void OP_CB_0x41(byte fake)   => Bit(0, processor.registers.C);
