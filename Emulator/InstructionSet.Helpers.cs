@@ -269,20 +269,20 @@ namespace axGB.CPU
 
         private byte Srl(byte value)
         {
-            var result = value >> 1;
+            var bit0   = value & 0b_00000001;
+            var result = (byte)(value >> 1 & 0b_01111111);
 
-            var zero   = (byte)result == 0;
-            var carry  = (value & 0x01) == 0x01;
+            var zero   = result == 0;
+            var carry  = bit0 == 1;
 
             SetFlags(zero, Flags.Zero);
             ClearFlags(Flags.Subtract);
             ClearFlags(Flags.HalfCarry);
             SetFlags(carry, Flags.Carry);
-           
 
-            return (byte)result;
+            return result;
         }
-        
+
         private void Call(ushort address)
         {
             Push(processor.registers.PC);
