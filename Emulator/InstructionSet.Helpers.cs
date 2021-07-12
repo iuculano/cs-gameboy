@@ -158,58 +158,63 @@ namespace axGB.CPU
         {
             var bit7   = value >> 7; // bit 7 to bit 0;
             var result = value << 1 | bit7;
+
             var zero   = cb == true && result == 0;
+            var carry  = bit7 == 1;
 
-
-            SetFlags(zero, Flags.Zero);            
+            SetFlags(zero, Flags.Zero);
             ClearFlags(Flags.Subtract);
             ClearFlags(Flags.HalfCarry);
-            SetFlags(bit7 == 1, Flags.Carry);
+            SetFlags(carry, Flags.Carry);
 
             return (byte)result;
         }
 
         private byte Rrc(byte value, bool cb)
         {
-            var bit0   = processor.registers.A & 0b_00000001;
-            var result = processor.registers.A >> 1 | (bit0 << 7);
-            var zero   = cb == true && result == 0;
+            var bit0   = value & 0b_00000001;
+            var result = value >> 1 | (bit0 << 7);
 
-            // CB instructions conditionally set the zero flag
-            SetFlags(zero, Flags.Zero);            
+            var zero   = cb == true && result == 0;
+            var carry  = bit0 == 1;
+
+            SetFlags(zero, Flags.Zero);
             ClearFlags(Flags.Subtract);
             ClearFlags(Flags.HalfCarry);
-            SetFlags(bit0 == 1, Flags.Carry);
+            SetFlags(carry, Flags.Carry);
 
             return (byte)result;
         }
 
         private byte Rl(byte value, bool cb)
         {
-            var carry  = HasFlags(Flags.Carry) ? 1 : 0;
-            var bit7   = value & 0b_10000000;
-            var result = value << 1 | carry;
+            var curCF  = HasFlags(Flags.Carry) ? 1 : 0; 
+            var result = (byte)((value << 1) | curCF);
+
             var zero   = cb == true && result == 0;
+            var carry  = value >> 7 == 1;
 
             SetFlags(zero, Flags.Zero);
             ClearFlags(Flags.Subtract);
             ClearFlags(Flags.HalfCarry);
-            SetFlags(bit7 == 0b_10000000, Flags.Carry);
+            SetFlags(carry, Flags.Carry);
 
             return (byte)result;
         }
 
         private byte Rr(byte value, bool cb)
         {
-            var carry  = HasFlags(Flags.Carry) ? 1 : 0;
+            var curCF  = HasFlags(Flags.Carry) ? 1 : 0;
             var bit0   = value & 0b_00000001;
-            var result = value >> 1 | (carry << 7);
+            var result = value >> 1 | (curCF << 7);
+
             var zero   = cb == true && result == 0;
+            var carry  = bit0 == 1;
 
             SetFlags(zero, Flags.Zero);
             ClearFlags(Flags.Subtract);
             ClearFlags(Flags.HalfCarry);
-            SetFlags(bit0 == 0b_00000001, Flags.Carry);
+            SetFlags(carry, Flags.Carry);
 
             return (byte)result;
         }
