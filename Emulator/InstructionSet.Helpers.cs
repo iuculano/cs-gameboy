@@ -65,6 +65,21 @@ namespace axGB.CPU
             return (ushort)result;
         }
 
+        private void AddSP(byte value)
+        {
+            var result = processor.registers.SP + (sbyte)value;
+
+            var half   = ((processor.registers.SP & 0x0F) + (value & 0x0F)) > 0x0F;
+            var carry  = ((processor.registers.SP & 0xFF) + value) > 0xFF;  // I'm not entirely sure why this works :|
+                                                                            // I'd think it'd be (sbyte)value, but that fails
+            ClearFlags(Flags.Zero);
+            ClearFlags(Flags.Subtract);
+            SetFlags(half, Flags.HalfCarry);
+            SetFlags(carry, Flags.Carry);
+
+            processor.registers.SP = (ushort)result;
+        }
+
         private byte Adc(byte register, byte value)
         {
             var hasCarry = Convert.ToInt32(HasFlags(Flags.Carry));
