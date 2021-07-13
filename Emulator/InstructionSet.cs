@@ -270,7 +270,7 @@ namespace axGB.CPU
                 new Instruction("PUSH HL",                 0, 16, OP_0xE5),     // 0xE5
                 new Instruction("AND {0:x2}",              1, 8,  OP_0xE6),     // 0xE6
                 new Instruction("RST 20H",                 0, 16, OP_NOT_IMPL), // 0xE7
-                new Instruction("ADD SP, ${0:x2}",         1, 16, OP_NOT_IMPL), // 0xE8
+                new Instruction("ADD SP, ${0:x2}",         1, 16, OP_0xE8),     // 0xE8
                 new Instruction("JP HL",                   0, 4,  OP_0xE9),     // 0xE9
                 new Instruction("LD (${0:x4}), A",         2, 16, OP_0xEA),     // 0xEA
                 new Instruction("INVALID_OPCODE",          0, 4,  OP_INVALID),  // 0xEB
@@ -287,7 +287,7 @@ namespace axGB.CPU
                 new Instruction("PUSH AF",                 0, 16, OP_0xF5),     // 0xF5
                 new Instruction("OR ${0:x2}",              1, 8,  OP_0xF6),     // 0xF6
                 new Instruction("RST 30H",                 0, 16, OP_NOT_IMPL), // 0xF7
-                new Instruction("LD HL, SP + ${0:x2}",     1, 12, OP_NOT_IMPL), // 0xF8
+                new Instruction("LD HL, SP + ${0:x2}",     1, 12, OP_0xF8),     // 0xF8
                 new Instruction("LD SP, HL",               0, 8,  OP_0xF9),     // 0xF9
                 new Instruction("LD A, (${0:x4})",         2, 16, OP_0xFA),     // 0xFA
                 new Instruction("EI",                      0, 4,  OP_0xFB),     // 0xFB
@@ -832,6 +832,7 @@ namespace axGB.CPU
         private void OP_0xE2()               => processor.memory.WriteByte((ushort)(0xFF00 + processor.registers.C), processor.registers.A);
         private void OP_0xE5()               => Push(processor.registers.HL);
         private void OP_0xE6(byte   operand) => And(operand);
+        private void OP_0xE8(byte   operand) => processor.registers.SP = AddSPRelative(operand);
         private void OP_0xE9()               => Jump(processor.registers.HL);
         private void OP_0xEA(ushort operand) => processor.memory.WriteByte(operand, processor.registers.A);
         private void OP_0xEE(byte operand)   => Xor(operand);
@@ -843,6 +844,7 @@ namespace axGB.CPU
         private void OP_0xF3()               => processor.interuptHandler.IME = false;
         private void OP_0xF5()               => Push(processor.registers.AF);
         private void OP_0xF6(byte   operand) => Or(operand);
+        private void OP_0xF8(byte   operand) => processor.registers.HL = AddSPRelative(operand);
         private void OP_0xF9()               => processor.registers.SP = processor.registers.HL;
         private void OP_0xFA(ushort operand) => processor.registers.A = processor.memory.ReadByte(operand);
         private void OP_0xFB()               => processor.interuptHandler.IME = true;

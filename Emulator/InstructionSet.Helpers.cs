@@ -65,7 +65,7 @@ namespace axGB.CPU
             return (ushort)result;
         }
 
-        private void AddSP(byte value)
+        private ushort AddSPRelative(byte value)
         {
             var result = processor.registers.SP + (sbyte)value;
 
@@ -77,7 +77,7 @@ namespace axGB.CPU
             SetFlags(half, Flags.HalfCarry);
             SetFlags(carry, Flags.Carry);
 
-            processor.registers.SP = (ushort)result;
+            return (ushort)result;
         }
 
         private byte Adc(byte register, byte value)
