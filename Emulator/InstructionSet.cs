@@ -238,7 +238,7 @@ namespace axGB.CPU
                 new Instruction("RST 00H",                 0, 16, OP_0xFF),     // 0xC7
                 new Instruction("RET Z",                   0, 8,  OP_0xC8),     // 0xC8
                 new Instruction("RET",                     0, 4,  OP_0xC9),     // 0xC9
-                new Instruction("JP Z, ${0:x4}",           2, 12, OP_0xFF),     // 0xCA
+                new Instruction("JP Z, ${0:x4}",           2, 12, OP_0xCA),     // 0xCA
                 new Instruction("PREFIX",                  0, 4,  OP_0xFF),     // 0xCB
                 new Instruction("CALL Z, ${0:x4}",         2, 12, OP_0xCC),     // 0xCC - Conditional
                 new Instruction("CALL ${0:x4}",            2, 24, OP_0xCD),     // 0xCD
