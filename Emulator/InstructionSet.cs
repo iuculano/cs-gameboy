@@ -235,7 +235,7 @@ namespace axGB.CPU
                 new Instruction("CALL NZ, ${0:x4}",        2, 12, OP_0xC4),     // 0xC4 - Conditional
                 new Instruction("PUSH BC",                 0, 16, OP_0xC5),     // 0xC5
                 new Instruction("ADD A, ${0:x2}",          1, 8,  OP_0xC6),     // 0xC6
-                new Instruction("RST 00H",                 0, 16, OP_0xFF),     // 0xC7
+                new Instruction("RST 00H",                 0, 16, OP_0xC7),     // 0xC7
                 new Instruction("RET Z",                   0, 8,  OP_0xC8),     // 0xC8
                 new Instruction("RET",                     0, 4,  OP_0xC9),     // 0xC9
                 new Instruction("JP Z, ${0:x4}",           2, 12, OP_0xCA),     // 0xCA
@@ -243,7 +243,7 @@ namespace axGB.CPU
                 new Instruction("CALL Z, ${0:x4}",         2, 12, OP_0xCC),     // 0xCC - Conditional
                 new Instruction("CALL ${0:x4}",            2, 24, OP_0xCD),     // 0xCD
                 new Instruction("ADC A, ${0:x2}",          1, 8,  OP_0xCE),     // 0xCE
-                new Instruction("RST 08H",                 0, 16, OP_0xFF),     // 0xCF
+                new Instruction("RST 08H",                 0, 16, OP_0xCF),     // 0xCF
                                                               
                 new Instruction("RET NC",                  0, 8,  OP_0xD0),     // 0xD0 - Conditional
                 new Instruction("POP DE",                  0, 12, OP_0xD1),     // 0xD1
@@ -252,15 +252,15 @@ namespace axGB.CPU
                 new Instruction("CALL NC, ${0:x4}",        2, 12, OP_0xD4),     // 0xD4 - Conditional
                 new Instruction("PUSH DE",                 0, 16, OP_0xD5),     // 0xD5
                 new Instruction("SUB {0:x2}",              1, 8,  OP_0xD6),     // 0xD6
-                new Instruction("RST 10H",                 0, 16, OP_NOT_IMPL), // 0xD7
+                new Instruction("RST 10H",                 0, 16, OP_0xD7),     // 0xD7
                 new Instruction("RET C",                   0, 8,  OP_0xD8),     // 0xD8
-                new Instruction("RETI",                    0, 16, OP_NOT_IMPL), // 0xD9
+                new Instruction("RETI",                    0, 16, OP_0xD9),     // 0xD9
                 new Instruction("JP C, ${0:x4}",           2, 12, OP_0xDA),     // 0xDA - Conditional
                 new Instruction("INVALID_OPCODE",          0, 0,  OP_INVALID),  // 0xDB
                 new Instruction("CALL C, ${0:x4}",         2, 12, OP_0xDC),     // 0xDC - Conditional
                 new Instruction("INVALID_OPCODE",          0, 0,  OP_INVALID),  // 0xDD
                 new Instruction("SBC A, ${0:x2}",          1, 8,  OP_0xDE),     // 0xDE
-                new Instruction("RST 18H",                 0, 16, OP_0xFF),     // 0xDF
+                new Instruction("RST 18H",                 0, 16, OP_0xDF),     // 0xDF
                                                               
                 new Instruction("LD ($FF00 + ${0:x2}), A", 1, 12, OP_0xE0),     // 0xE0
                 new Instruction("POP HL",                  0, 12, OP_0xE1),     // 0xE1
@@ -269,7 +269,7 @@ namespace axGB.CPU
                 new Instruction("INVALID_OPCODE",          0, 0,  OP_INVALID),  // 0xE4
                 new Instruction("PUSH HL",                 0, 16, OP_0xE5),     // 0xE5
                 new Instruction("AND {0:x2}",              1, 8,  OP_0xE6),     // 0xE6
-                new Instruction("RST 20H",                 0, 16, OP_NOT_IMPL), // 0xE7
+                new Instruction("RST 20H",                 0, 16, OP_0xE7),     // 0xE7
                 new Instruction("ADD SP, ${0:x2}",         1, 16, OP_0xE8),     // 0xE8
                 new Instruction("JP HL",                   0, 4,  OP_0xE9),     // 0xE9
                 new Instruction("LD (${0:x4}), A",         2, 16, OP_0xEA),     // 0xEA
@@ -286,7 +286,7 @@ namespace axGB.CPU
                 new Instruction("INVALID_OPCODE",          0, 0,  OP_NOT_IMPL), // 0xF4
                 new Instruction("PUSH AF",                 0, 16, OP_0xF5),     // 0xF5
                 new Instruction("OR ${0:x2}",              1, 8,  OP_0xF6),     // 0xF6
-                new Instruction("RST 30H",                 0, 16, OP_NOT_IMPL), // 0xF7
+                new Instruction("RST 30H",                 0, 16, OP_0xF7),     // 0xF7
                 new Instruction("LD HL, SP + ${0:x2}",     1, 12, OP_0xF8),     // 0xF8
                 new Instruction("LD SP, HL",               0, 8,  OP_0xF9),     // 0xF9
                 new Instruction("LD A, (${0:x4})",         2, 16, OP_0xFA),     // 0xFA
@@ -592,11 +592,6 @@ namespace axGB.CPU
             throw new Exception("Invalid or illegal opcode.");
         }
 
-        private static void OP_NOP()
-        {
-            // Nothing
-        }
-
 
         private void OP_0x00()               => processor.registers.A  = processor.registers.A;
         private void OP_0x01(ushort operand) => processor.registers.BC = operand;
@@ -808,13 +803,15 @@ namespace axGB.CPU
         private void OP_0xC3(ushort operand) => Jump(operand);
         private void OP_0xC4(ushort operand) => Call(operand, Flags.Zero, false);
         private void OP_0xC5()               => Push(processor.registers.BC);
-        private void OP_0xC6(byte   operand) => processor.registers.A = Add(processor.registers.A, operand);     
+        private void OP_0xC6(byte   operand) => processor.registers.A = Add(processor.registers.A, operand);
+        private void OP_0xC7()               => Rst(0x0000);
         private void OP_0xC8()               => Ret(Flags.Zero, true);
         private void OP_0xC9()               => processor.registers.PC = Pop();
         private void OP_0xCA(ushort operand) => Jump(operand, Flags.Zero, true);
         private void OP_0xCC(ushort operand) => Call(operand, Flags.Zero, true);
         private void OP_0xCD(ushort operand) => Call(operand);
         private void OP_0xCE(byte   operand) => processor.registers.A = Adc(processor.registers.A, operand);
+        private void OP_0xCF()               => Rst(0x0008);
 
         private void OP_0xD0()               => Ret(Flags.Carry, false);
         private void OP_0xD1()               => processor.registers.DE = Pop();
@@ -822,16 +819,20 @@ namespace axGB.CPU
         private void OP_0xD4(ushort operand) => Call(operand, Flags.Carry, false);
         private void OP_0xD5()               => Push(processor.registers.DE);
         private void OP_0xD6(byte   operand) => processor.registers.A = Sub(processor.registers.A, operand);
-        private void OP_0xD8() => Ret(Flags.Carry, true);
+        private void OP_0xD7()               => Rst(0x0010);
+        private void OP_0xD8()               => Ret(Flags.Carry, true);
+        private void OP_0xD9()               => Reti();
         private void OP_0xDA(ushort operand) => Jump(operand, Flags.Carry, true);
         private void OP_0xDC(ushort operand) => Call(operand, Flags.Carry, true);
         private void OP_0xDE(byte   operand) => processor.registers.A = Sbc(processor.registers.A, operand);
+        private void OP_0xDF()               => Rst(0x0018);
 
         private void OP_0xE0(byte operand)   => processor.memory.WriteByte((ushort)(0xFF00 + operand), processor.registers.A);
         private void OP_0xE1()               => processor.registers.HL = Pop();
         private void OP_0xE2()               => processor.memory.WriteByte((ushort)(0xFF00 + processor.registers.C), processor.registers.A);
         private void OP_0xE5()               => Push(processor.registers.HL);
         private void OP_0xE6(byte   operand) => And(operand);
+        private void OP_0xE7()               => Rst(0x0020);
         private void OP_0xE8(byte   operand) => processor.registers.SP = AddSPRelative(operand);
         private void OP_0xE9()               => Jump(processor.registers.HL);
         private void OP_0xEA(ushort operand) => processor.memory.WriteByte(operand, processor.registers.A);
@@ -844,12 +845,13 @@ namespace axGB.CPU
         private void OP_0xF3()               => processor.interuptHandler.IME = false;
         private void OP_0xF5()               => Push(processor.registers.AF);
         private void OP_0xF6(byte   operand) => Or(operand);
+        private void OP_0xF7()               => Rst(0x0030);
         private void OP_0xF8(byte   operand) => processor.registers.HL = AddSPRelative(operand);
         private void OP_0xF9()               => processor.registers.SP = processor.registers.HL;
         private void OP_0xFA(ushort operand) => processor.registers.A = processor.memory.ReadByte(operand);
         private void OP_0xFB()               => processor.interuptHandler.IME = true;
         private void OP_0xFE(byte operand)   => Cp(operand);
-        private void OP_0xFF()               => OP_NOT_IMPL();
+        private void OP_0xFF()               => Rst(0x0038);
 
         private void OP_CB_0x00(byte fake)   => processor.registers.B = Rlc(processor.registers.B, true);
         private void OP_CB_0x01(byte fake)   => processor.registers.C = Rlc(processor.registers.C, true);

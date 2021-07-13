@@ -325,6 +325,12 @@ namespace axGB.CPU
             processor.cycles += 12;
         }
 
+        private void Reti()
+        {
+            processor.interuptHandler.IME = true;
+            processor.registers.PC        = Pop();
+        }
+
         private void Push(ushort register)
         {
             var address = processor.registers.SP -= 2;
