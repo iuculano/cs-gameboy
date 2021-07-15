@@ -11,7 +11,7 @@ namespace axGB.CPU
             var result = register + 1;
             
             var zero   = (byte)result == 0;
-            var half   = (((register & 0x0F) + 1) & 0x10) == 0x10; // Limited to a 4 bit operation on both sides
+            var half   = ((register & 0x0F) + 1) > 0x0F;
 
             SetFlags(Flags.Zero,      zero);
             SetFlags(Flags.Subtract,  false);
@@ -39,7 +39,7 @@ namespace axGB.CPU
             var result = register + value;
 
             var zero   = (byte)result  == 0;
-            var half   = (((register & 0x0F) + (value & 0x0F)) & 0x10) == 0x10;
+            var half   = ((register & 0x0F) + (value & 0x0F)) > 0x0F;
             var carry  = result > 0xFF;
             
             SetFlags(Flags.Zero,      zero);
@@ -55,7 +55,7 @@ namespace axGB.CPU
             var result = register + value;
 
             var zero   = (byte)result  == 0;
-            var half   = (((register & 0x0FFF) + (value & 0x0FFF)) & 0x1000) == 0x1000;
+            var half   = ((register & 0x0FFF) + (value & 0x0FFF)) > 0x0FFF;
             var carry  = result > 0xFFFF;
             
             SetFlags(Flags.Subtract,  false);
@@ -86,7 +86,7 @@ namespace axGB.CPU
             var result   = (register + value) + hasCarry;  
 
             var zero     = (byte)result == 0;
-            var half     = (((register & 0x0F) + (value & 0x0F) + hasCarry) & 0x10) == 0x10;
+            var half     = ((register & 0x0F) + (value & 0x0F) + hasCarry) > 0x0F;
             var carry    = result > 0xFF;
 
             SetFlags(Flags.Zero,      zero);
