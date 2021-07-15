@@ -119,8 +119,8 @@ namespace axGB.System
         // Interupts
         public byte IE
         {
-            get => MMIO.Span[0xFF];
-            set => MMIO.Span[0xFF] = value;
+            get => ZRAM.Span[0x7F];
+            set => ZRAM.Span[0x7F] = value;
         }
         
         public byte IF
