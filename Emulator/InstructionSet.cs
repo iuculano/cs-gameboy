@@ -849,7 +849,7 @@ namespace axGB.CPU
         private void OP_0xF8(byte   operand) => processor.registers.HL = AddSPRelative(operand);
         private void OP_0xF9()               => processor.registers.SP = processor.registers.HL;
         private void OP_0xFA(ushort operand) => processor.registers.A = processor.memory.ReadByte(operand);
-        private void OP_0xFB()               => processor.interuptHandler.IME = true;
+        private void OP_0xFB()               => Ei();
         private void OP_0xFE(byte operand)   => Cp(operand);
         private void OP_0xFF()               => Rst(0x0038);
 

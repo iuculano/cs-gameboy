@@ -12,7 +12,8 @@ namespace axGB.CPU
             this.processor = processor;
         }
 
-        public bool IME { get; set; }
+        public bool IME          { get; set; }
+        public bool NeedsEIDelay { get; set; }
         public bool IsInterruptRequested
         {
             get
@@ -21,16 +22,58 @@ namespace axGB.CPU
             }
         }
 
+        
+
         /// <summary>
         /// Process pending interupts.
         /// </summary>
         public void ProcessInterupts()
         {
-            // I have no idea yet
-            switch (processor.memory.IF)
+            if (IME == false)
             {
-                default:
-                    break;
+                return;
+            }
+
+            // Delay for one instruction after EI
+            if (NeedsEIDelay)
+            {
+                NeedsEIDelay = false;
+                return;
+            }
+
+            // VBlank
+            if ((processor.memory.IF & 0b_00000001) > 0) 
+            {
+                processor.registers.PC = 0x0040;
+
+                unchecked
+                {
+                    processor.memory.IF &= (byte)~(0b_00000001);
+                }
+            }
+
+            // LCD STAT
+            if ((processor.memory.IF & 0b_00000010) > 0)
+            {
+
+            }
+
+            // Timer
+            if ((processor.memory.IF & 0b_00000100) > 0)
+            {
+
+            }
+
+            // Serial
+            if ((processor.memory.IF & 0b_00001000) > 0)
+            {
+
+            }
+
+            // Joypad
+            if ((processor.memory.IF & 0b_00010000) > 0)
+            {
+
             }
         }
     }
