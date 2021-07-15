@@ -1,4 +1,4 @@
-using System;
+﻿using System;
 using System.IO;
 using System.Text;
 using System.Diagnostics;
@@ -175,6 +175,7 @@ namespace axGB.System
 
                         // DMG Boot register
                         case 0xFF50:
+                            BOOT = value;
                             break;
  
                         default:
