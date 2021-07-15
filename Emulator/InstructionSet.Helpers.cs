@@ -13,9 +13,9 @@ namespace axGB.CPU
             var zero   = (byte)result == 0;
             var half   = (((register & 0x0F) + 1) & 0x10) == 0x10; // Limited to a 4 bit operation on both sides
 
-            SetFlags(zero, Flags.Zero);
-            ClearFlags(Flags.Subtract);
-            SetFlags(half, Flags.HalfCarry);
+            SetFlags(Flags.Zero,      zero);
+            SetFlags(Flags.Subtract,  false);
+            SetFlags(Flags.HalfCarry, half);
 
             return (byte)result;
         }
@@ -27,9 +27,9 @@ namespace axGB.CPU
             var zero   = (byte)result == 0;           // Half carry is set if it's less than 0
             var half   = ((register & 0x0F) - 1) < 0; // https://gbdev.io/pandocs/CPU_Registers_and_Flags.html
 
-            SetFlags(zero, Flags.Zero);
-            SetFlags(Flags.Subtract);
-            SetFlags(half, Flags.HalfCarry);
+            SetFlags(Flags.Zero,      zero);
+            SetFlags(Flags.Subtract,  true);
+            SetFlags(Flags.HalfCarry, half);
 
             return (byte)result;
         }
@@ -42,10 +42,10 @@ namespace axGB.CPU
             var half   = (((register & 0x0F) + (value & 0x0F)) & 0x10) == 0x10;
             var carry  = result > 0xFF;
             
-            SetFlags(zero,  Flags.Zero);
-            ClearFlags(Flags.Subtract);
-            SetFlags(half,  Flags.HalfCarry);
-            SetFlags(carry, Flags.Carry);
+            SetFlags(Flags.Zero,      zero);
+            SetFlags(Flags.Subtract,  false);
+            SetFlags(Flags.HalfCarry, half);
+            SetFlags(Flags.Carry,     carry);
             
             return (byte)result;
         }
@@ -58,9 +58,9 @@ namespace axGB.CPU
             var half   = (((register & 0x0FFF) + (value & 0x0FFF)) & 0x1000) == 0x1000;
             var carry  = result > 0xFFFF;
             
-            ClearFlags(Flags.Subtract);
-            SetFlags(half,  Flags.HalfCarry);
-            SetFlags(carry, Flags.Carry);
+            SetFlags(Flags.Subtract,  false);
+            SetFlags(Flags.HalfCarry, half);
+            SetFlags(Flags.Carry,     carry);
             
             return (ushort)result;
         }
@@ -72,10 +72,10 @@ namespace axGB.CPU
             var half   = ((processor.registers.SP & 0x0F) + (value & 0x0F)) > 0x0F;
             var carry  = ((processor.registers.SP & 0xFF) + value) > 0xFF;  // I'm not entirely sure why this works :|
                                                                             // I'd think it'd be (sbyte)value, but that fails
-            ClearFlags(Flags.Zero);
-            ClearFlags(Flags.Subtract);
-            SetFlags(half, Flags.HalfCarry);
-            SetFlags(carry, Flags.Carry);
+            SetFlags(Flags.Zero,      false);
+            SetFlags(Flags.Subtract,  false);
+            SetFlags(Flags.HalfCarry, half);
+            SetFlags(Flags.Carry,     carry);
 
             return (ushort)result;
         }
@@ -89,10 +89,10 @@ namespace axGB.CPU
             var half     = (((register & 0x0F) + (value & 0x0F) + hasCarry) & 0x10) == 0x10;
             var carry    = result > 0xFF;
 
-            SetFlags(zero, Flags.Zero);
-            ClearFlags(Flags.Subtract);
-            SetFlags(half, Flags.HalfCarry);
-            SetFlags(carry, Flags.Carry);
+            SetFlags(Flags.Zero,      zero);
+            SetFlags(Flags.Subtract,  false);
+            SetFlags(Flags.HalfCarry, half);
+            SetFlags(Flags.Carry,     carry);
 
             return (byte)result;
         }
@@ -105,10 +105,10 @@ namespace axGB.CPU
             var half   = ((register & 0x0F) - (value & 0x0F)) < 0;
             var carry  = result < 0;
 
-            SetFlags(zero,  Flags.Zero);
-            SetFlags(Flags.Subtract);
-            SetFlags(half,  Flags.HalfCarry);
-            SetFlags(carry, Flags.Carry);
+            SetFlags(Flags.Zero,      zero);
+            SetFlags(Flags.Subtract,  true);
+            SetFlags(Flags.HalfCarry, half);
+            SetFlags(Flags.Carry,     carry);
 
             return (byte)result;
         }
@@ -121,10 +121,10 @@ namespace axGB.CPU
             var half   = ((register & 0x0FFF) + (value & 0x0FFF)) < 0;
             var carry  = result < 0;
 
-            SetFlags(zero,  Flags.Zero);
-            SetFlags(Flags.Subtract);
-            SetFlags(half,  Flags.HalfCarry);
-            SetFlags(carry, Flags.Carry);
+            SetFlags(Flags.Zero,      zero);
+            SetFlags(Flags.Subtract,  true);
+            SetFlags(Flags.HalfCarry, half);
+            SetFlags(Flags.Carry,     carry);
 
             return (ushort)result;
         }
@@ -138,10 +138,10 @@ namespace axGB.CPU
             var half     = ((register & 0x0F) - (value & 0x0F) - hasCarry) < 0;
             var carry    = result < 0;
 
-            SetFlags(zero, Flags.Zero);
-            SetFlags(Flags.Subtract);
-            SetFlags(half, Flags.HalfCarry);
-            SetFlags(carry, Flags.Carry);
+            SetFlags(Flags.Zero,      zero);
+            SetFlags(Flags.Subtract,  true);
+            SetFlags(Flags.HalfCarry, half);
+            SetFlags(Flags.Carry,     carry);
 
             return (byte)result;
         }
@@ -161,11 +161,13 @@ namespace axGB.CPU
 
         private void Bit(byte bit, byte value)
         {
-            var result = (value & (1 << bit)) == 0;
+            var result = (value & (1 << bit));
+
+            var zero   = result == 0;
            
-            SetFlags(result, Flags.Zero);
-            SetFlags(Flags.HalfCarry);
-            ClearFlags(Flags.Subtract);
+            SetFlags(Flags.Zero,      zero);
+            SetFlags(Flags.HalfCarry, true);
+            SetFlags(Flags.Subtract,  false);
         }
 
 
@@ -176,11 +178,10 @@ namespace axGB.CPU
 
             var zero   = cb == true && result == 0;
             var carry  = bit7 == 1;
-
-            SetFlags(zero, Flags.Zero);
-            ClearFlags(Flags.Subtract);
-            ClearFlags(Flags.HalfCarry);
-            SetFlags(carry, Flags.Carry);
+            SetFlags(Flags.Zero,      zero);
+            SetFlags(Flags.Subtract,  false);
+            SetFlags(Flags.HalfCarry, false);
+            SetFlags(Flags.Carry,     carry);
 
             return (byte)result;
         }
@@ -193,10 +194,10 @@ namespace axGB.CPU
             var zero   = cb == true && result == 0;
             var carry  = bit0 == 1;
 
-            SetFlags(zero, Flags.Zero);
-            ClearFlags(Flags.Subtract);
-            ClearFlags(Flags.HalfCarry);
-            SetFlags(carry, Flags.Carry);
+            SetFlags(Flags.Zero,      zero);
+            SetFlags(Flags.Subtract,  false);
+            SetFlags(Flags.HalfCarry, false);
+            SetFlags(Flags.Carry,     carry);
 
             return (byte)result;
         }
@@ -209,10 +210,10 @@ namespace axGB.CPU
             var zero   = cb == true && result == 0;
             var carry  = value >> 7 == 1;
 
-            SetFlags(zero, Flags.Zero);
-            ClearFlags(Flags.Subtract);
-            ClearFlags(Flags.HalfCarry);
-            SetFlags(carry, Flags.Carry);
+            SetFlags(Flags.Zero,      zero);
+            SetFlags(Flags.Subtract,  false);
+            SetFlags(Flags.HalfCarry, false);
+            SetFlags(Flags.Carry,     carry);
 
             return (byte)result;
         }
@@ -226,10 +227,10 @@ namespace axGB.CPU
             var zero   = cb == true && result == 0;
             var carry  = bit0 == 1;
 
-            SetFlags(zero, Flags.Zero);
-            ClearFlags(Flags.Subtract);
-            ClearFlags(Flags.HalfCarry);
-            SetFlags(carry, Flags.Carry);
+            SetFlags(Flags.Zero,      zero);
+            SetFlags(Flags.Subtract,  false);
+            SetFlags(Flags.HalfCarry, false);
+            SetFlags(Flags.Carry,     carry);
 
             return (byte)result;
         }
@@ -242,10 +243,10 @@ namespace axGB.CPU
             var zero   = result == 0;
             var carry  = bit7   == 1;
 
-            SetFlags(zero, Flags.Zero);
-            ClearFlags(Flags.Subtract);
-            ClearFlags(Flags.HalfCarry);
-            SetFlags(carry, Flags.Carry);
+            SetFlags(Flags.Zero,      zero);
+            SetFlags(Flags.Subtract,  false);
+            SetFlags(Flags.HalfCarry, false);
+            SetFlags(Flags.Carry,     carry);
 
             return result;
         }
@@ -258,10 +259,10 @@ namespace axGB.CPU
             var zero   = result == 0;
             var carry  = bit0   == 1;
 
-            SetFlags(zero, Flags.Zero);
-            ClearFlags(Flags.Subtract);
-            ClearFlags(Flags.HalfCarry);
-            SetFlags(carry, Flags.Carry);
+            SetFlags(Flags.Zero,      zero);
+            SetFlags(Flags.Subtract,  false);
+            SetFlags(Flags.HalfCarry, false);
+            SetFlags(Flags.Carry,     carry);
 
             return result;
         }
@@ -274,10 +275,10 @@ namespace axGB.CPU
 
             var zero   = result == 0;
 
-            SetFlags(zero, Flags.Zero);
-            ClearFlags(Flags.Subtract);
-            ClearFlags(Flags.HalfCarry);
-            ClearFlags(Flags.Carry);
+            SetFlags(Flags.Zero,      zero);
+            SetFlags(Flags.Subtract,  false);
+            SetFlags(Flags.HalfCarry, false);
+            SetFlags(Flags.Carry,     false);
 
             return (byte)result;
         }
@@ -290,10 +291,10 @@ namespace axGB.CPU
             var zero   = result == 0;
             var carry  = bit0 == 1;
 
-            SetFlags(zero, Flags.Zero);
-            ClearFlags(Flags.Subtract);
-            ClearFlags(Flags.HalfCarry);
-            SetFlags(carry, Flags.Carry);
+            SetFlags(Flags.Zero,      zero);
+            SetFlags(Flags.Subtract,  false);
+            SetFlags(Flags.HalfCarry, false);
+            SetFlags(Flags.Carry,     carry);
 
             return result;
         }
@@ -385,10 +386,12 @@ namespace axGB.CPU
         {
             var result = (byte)(processor.registers.A & value);
 
-            SetFlags((byte)result == 0, Flags.Zero);
-            ClearFlags(Flags.Subtract);
-            SetFlags(Flags.HalfCarry);
-            ClearFlags(Flags.Carry);
+            var zero   = result == 0;
+
+            SetFlags(Flags.Zero,      zero);
+            SetFlags(Flags.Subtract,  false);
+            SetFlags(Flags.HalfCarry, true);
+            SetFlags(Flags.Carry,     false);
 
             processor.registers.A = result;
         }
@@ -397,10 +400,12 @@ namespace axGB.CPU
         {
             var result = (byte)(processor.registers.A ^ value);
 
-            SetFlags((byte)result == 0, Flags.Zero);
-            ClearFlags(Flags.Subtract);
-            ClearFlags(Flags.HalfCarry);
-            ClearFlags(Flags.Carry);
+            var zero   = result == 0;
+
+            SetFlags(Flags.Zero,      zero);
+            SetFlags(Flags.Subtract,  false);
+            SetFlags(Flags.HalfCarry, false);
+            SetFlags(Flags.Carry,     false);
 
             processor.registers.A = result;
         }
@@ -409,10 +414,12 @@ namespace axGB.CPU
         {
             var result = (byte)(processor.registers.A | value);
 
-            SetFlags((byte)result == 0, Flags.Zero);
-            ClearFlags(Flags.Subtract);  
-            ClearFlags(Flags.HalfCarry);
-            ClearFlags(Flags.Carry);
+            var zero   = result == 0;
+
+            SetFlags(Flags.Zero,      zero);
+            SetFlags(Flags.Subtract,  false);
+            SetFlags(Flags.HalfCarry, false);
+            SetFlags(Flags.Carry,     false);
 
             processor.registers.A = result;
         }
@@ -425,17 +432,17 @@ namespace axGB.CPU
             var half   = ((processor.registers.A & 0x0F) - (value & 0x0F)) < 0;
             var carry  = result < 0;
 
-            SetFlags(zero,  Flags.Zero);
-            SetFlags(Flags.Subtract);
-            SetFlags(half,  Flags.HalfCarry);
-            SetFlags(carry, Flags.Carry);
+            SetFlags(Flags.Zero,      zero);
+            SetFlags(Flags.Subtract,  true);
+            SetFlags(Flags.HalfCarry, half);
+            SetFlags(Flags.Carry,     carry);
         }
 
         private void Cpl()
         {
             var result = ~processor.registers.A;
-            SetFlags(Flags.Subtract);
-            SetFlags(Flags.HalfCarry);
+            SetFlags(Flags.Subtract,  true);
+            SetFlags(Flags.HalfCarry, true);
 
             processor.registers.A = (byte)result;
         }
@@ -447,18 +454,27 @@ namespace axGB.CPU
 
         private void Scf()
         {
-            SetFlags(Flags.Carry);
-
-            ClearFlags(Flags.Subtract);
-            ClearFlags(Flags.HalfCarry);
+            SetFlags(Flags.Carry,     true);
+            SetFlags(Flags.Subtract,  false);
+            SetFlags(Flags.HalfCarry, false);
         }
 
         private void Ccf()
         {
-            SetFlags(!HasFlags(Flags.Carry), Flags.Carry);
+            SetFlags(Flags.Carry,     !HasFlags(Flags.Carry));
+            SetFlags(Flags.Subtract,  false);
+            SetFlags(Flags.HalfCarry, false);
+        }
 
-            ClearFlags(Flags.Subtract);
-            ClearFlags(Flags.HalfCarry);
+        private void Ei()
+        {
+            processor.interuptHandler.IME          = true;
+            processor.interuptHandler.NeedsEIDelay = true;
+
+
+            var opcode = processor.memory.ReadByte(processor.registers.PC);
+            var length = Opcodes[opcode].OperandLength + 1;
+            Push((ushort)(processor.registers.PC + length));
         }
     }
 }

@@ -10,14 +10,9 @@ namespace axGB.CPU
             return (processor.registers.F & (byte)flags) == (byte)flags;
         }
 
-        private void SetFlags(Flags flags)
+        private void SetFlags(Flags flags, bool enabled)
         {
-            processor.registers.F |= (byte)flags;
-        }
-
-        private void SetFlags(bool condition, Flags flags)
-        {
-            if (condition)
+            if (enabled)
             {
                 processor.registers.F |= (byte)flags;
             }
