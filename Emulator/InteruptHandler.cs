@@ -1,6 +1,6 @@
 namespace axGB.CPU
 {
-    public class InteruptHandler
+    public partial class InteruptHandler
     {
         private Processor processor
         {
@@ -29,7 +29,7 @@ namespace axGB.CPU
         /// </summary>
         public void ProcessInterupts()
         {
-            if (IME == false)
+            if (IME == false || processor.memory.IE == 0)
             {
                 return;
             }
@@ -44,6 +44,11 @@ namespace axGB.CPU
             // VBlank
             if ((processor.memory.IF & 0b_00000001) > 0) 
             {
+                // https://emudev.de/gameboy-emulator/interrupts-and-timers/
+                var address = processor.registers.SP -= 2;
+                processor.memory.WriteWord(address, processor.registers.PC);
+
+                // VBlank interrupt vector
                 processor.registers.PC = 0x0040;
 
                 unchecked
