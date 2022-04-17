@@ -15,6 +15,7 @@ namespace axGB.CPU
         private IntPtr    hwnd;
         private Graphics  graphics;
         private Bitmap    backbuffer;
+        private Bitmap    vram;
         private uint[]    pallete;
 
 
@@ -27,6 +28,7 @@ namespace axGB.CPU
             hwnd       = GetForegroundWindow();
             graphics   = Graphics.FromHwnd(hwnd);
             backbuffer = new Bitmap(160, 144, PixelFormat.Format32bppRgb);
+            vram       = new Bitmap(160, 144, PixelFormat.Format32bppRgb);
         }
 
         public void DrawVram(ReadOnlySpan<byte> data, int x, int y)
@@ -34,11 +36,11 @@ namespace axGB.CPU
 
         }
 
-        public void DrawTile(ReadOnlySpan<byte> data, int x, int y)
+        public void DrawTile(Bitmap destination, ReadOnlySpan<byte> data, int x, int y)
         {
-            var rect   = new Rectangle(0, 0, backbuffer.Width, backbuffer.Height);
-            var buffer = backbuffer.LockBits(rect, ImageLockMode.ReadWrite, backbuffer.PixelFormat);
-            var width  = backbuffer.Width;
+            var rect   = new Rectangle(0, 0, destination.Width, destination.Height);
+            var buffer = destination.LockBits(rect, ImageLockMode.ReadWrite, destination.PixelFormat);
+            var width  = destination.Width;
 
             // https://www.huderlem.com/demos/gameboy2bpp.html was super useful
             // Row
@@ -67,7 +69,7 @@ namespace axGB.CPU
                 }
             }
 
-            backbuffer.UnlockBits(buffer);
+            destination.UnlockBits(buffer);
         }
 
         public void WalkTileMap()
@@ -95,14 +97,14 @@ namespace axGB.CPU
                     
                     var span  = new ReadOnlySpan<byte>(memory.Memory, ptr, 16);
 
-                    DrawTile(span, x, y);
+                    DrawTile(backbuffer, span, x, y);
                 }
             }
 
             #if DEBUG
             // This will draw the contents of VRAM to screen
-
-            /*for (int y = 0; y < 18; y++)
+            
+            for (int y = 0; y < 18; y++)
             {
                 for (int x = 0; x < 20; x++)
                 {
@@ -112,16 +114,17 @@ namespace axGB.CPU
                     var ptr   = tileData + index;            
                     var span  = new ReadOnlySpan<byte>(memory.Memory, ptr, 16);
 
-                    DrawTile(span, x, y);
+                    DrawTile(vram, span, x, y);
                 }
-            }*/
+            }
             #endif
         }
 
         public void Flip()
         {
             WalkTileMap();
-            graphics.DrawImage(backbuffer, 0, 0);
+            graphics.DrawImage(backbuffer, 128, 128);
+            graphics.DrawImage(vram, 128 + backbuffer.Width + 1, 128);
         }
 
 
