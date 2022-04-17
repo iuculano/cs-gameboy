@@ -16,20 +16,17 @@ namespace axGB.CPU
             if (HasFlags(flags) == condition)
             {
                 Call(address);
+                processor.cycles += 12;
             }
-
-            // Pay the conditional tax
-            processor.cycles += 12;
         }
 
         private void Ret(Flags flags, bool condition)
         {
             if (HasFlags(flags) == condition)
             {
-                processor.registers.PC = Pop();
+                processor.registers.PC  = Pop();
+                processor.cycles       += 12;
             }
-
-            processor.cycles += 12;
         }
 
         private void Reti()
@@ -48,10 +45,8 @@ namespace axGB.CPU
             if (HasFlags(flags) == condition)
             {
                 Jump(value);
+                processor.cycles += 4;
             }
-
-            // Pay the conditional tax
-            processor.cycles += 4;
         }
 
         private void JumpRelative(byte value)
@@ -59,8 +54,6 @@ namespace axGB.CPU
             // value can be negative here, it's possible to jump backwards
             var pc                 = (int)(processor.registers.PC) + (sbyte)value;
             processor.registers.PC = (ushort)pc;
-
-            return;
         }
 
         private void JumpRelative(byte value, Flags flags, bool condition)
@@ -68,10 +61,8 @@ namespace axGB.CPU
             if (HasFlags(flags) == condition)
             {
                 JumpRelative(value);
+                processor.cycles += 4;
             }
-
-            // Pay the conditional tax
-            processor.cycles += 4;
         }
 
         private void Cp(byte value)
