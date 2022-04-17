@@ -5,6 +5,7 @@ using System.Runtime.CompilerServices;
 
 namespace axGB.System
 {
+    // https://gbdev.io/pandocs/The_Cartridge_Header.html
     public struct CartridgeHeader
     {
         public byte[]          NintendoLogo     { get; init; }
