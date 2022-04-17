@@ -23,11 +23,11 @@ namespace axGB.CPU
         {
             processor.interuptHandler.IME          = true;
             processor.interuptHandler.NeedsEIDelay = true;
+        }
 
-
-            var opcode = processor.memory.ReadByte(processor.registers.PC);
-            var length = Opcodes[opcode].OperandLength + 1;
-            Push((ushort)(processor.registers.PC + length));
+        private void Di()
+        {
+            processor.interuptHandler.IME = false;
         }
     }
 }
