@@ -173,6 +173,11 @@ namespace axGB.CPU
                         if (memory.LY >= 144)
                         {
                             // Should fire an interupt here?
+                            if ((memory.IE & 0b_00000001) > 0)
+                            {
+                                memory.IF |= 0b_00000001;
+                            }
+
                             memory.STAT = 0b_00000001;
                         }
 
