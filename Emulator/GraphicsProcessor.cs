@@ -11,24 +11,16 @@ namespace axGB.CPU
     {
         private MemoryBus memory;
         private int       cycles;
-        
-        private IntPtr    hwnd;
-        private Graphics  graphics;
-        private Bitmap    backbuffer;
-        private Bitmap    vram;
         private uint[]    pallete;
+
+        private GDIRenderer gdi;
 
 
         // This is a hack to grab the HWND of the console
-        [DllImport("user32.dll")]
-        private static extern IntPtr GetForegroundWindow();
 
         public void InitRenderer()
         {
-            hwnd       = GetForegroundWindow();
-            graphics   = Graphics.FromHwnd(hwnd);
-            backbuffer = new Bitmap(160, 144, PixelFormat.Format32bppRgb);
-            vram       = new Bitmap(160, 144, PixelFormat.Format32bppRgb);
+            gdi = new GDIRenderer(160, 144);
         }
 
         public void DrawVram(ReadOnlySpan<byte> data, int x, int y)
@@ -36,12 +28,8 @@ namespace axGB.CPU
 
         }
 
-        public void DrawTile(Bitmap destination, ReadOnlySpan<byte> data, int x, int y)
+        public void DrawTile(ReadOnlySpan<byte> data, int x, int y)
         {
-            var rect   = new Rectangle(0, 0, destination.Width, destination.Height);
-            var buffer = destination.LockBits(rect, ImageLockMode.ReadWrite, destination.PixelFormat);
-            var width  = destination.Width;
-
             // https://www.huderlem.com/demos/gameboy2bpp.html was super useful
             // Row
             for (int _y = 0; _y < 16; _y += 2)
@@ -59,17 +47,11 @@ namespace axGB.CPU
 
                     var ix    = (x * 8) + _x;
                     var iy    = (y * 8) + _y / 2;
-                    var index = (iy * width) + ix;
+                    var index = (iy * 160) + ix;
 
-                    unsafe
-                    {
-                        uint* ptr  = (uint*)buffer.Scan0;
-                        ptr[index] = pallete[color];
-                    }
+                    gdi.SetPixel(ix, iy, pallete[color]);
                 }
             }
-
-            destination.UnlockBits(buffer);
         }
 
         public void WalkTileMap()
@@ -97,14 +79,14 @@ namespace axGB.CPU
                     
                     var span  = new ReadOnlySpan<byte>(memory.Memory, ptr, 16);
 
-                    DrawTile(backbuffer, span, x, y);
+                    DrawTile(span, x, y);
                 }
             }
 
             #if DEBUG
             // This will draw the contents of VRAM to screen
             
-            for (int y = 0; y < 18; y++)
+            /*for (int y = 0; y < 18; y++)
             {
                 for (int x = 0; x < 20; x++)
                 {
@@ -116,15 +98,14 @@ namespace axGB.CPU
 
                     DrawTile(vram, span, x, y);
                 }
-            }
+            }*/
             #endif
         }
 
         public void Flip()
         {
-            WalkTileMap();
-            graphics.DrawImage(backbuffer, 128, 128);
-            graphics.DrawImage(vram, 128 + backbuffer.Width + 1, 128);
+            //WalkTileMap();
+            gdi.Flip();
         }
 
 
@@ -142,6 +123,11 @@ namespace axGB.CPU
             };
         }
 
+        ~GraphicsProcessor()
+        {
+            gdi.Dispose();
+        }
+
 
         public int Update(int cycles)
         {
@@ -152,6 +138,8 @@ namespace axGB.CPU
                 this.cycles = 0;
                 memory.LY   = 0;
                 memory.STAT = 0b_00000000;
+
+                return this.cycles;
             }
 
             // delta     = cycles - this.cycles;
@@ -172,6 +160,9 @@ namespace axGB.CPU
                         // 144 - 153 are v-blank
                         if (memory.LY >= 144)
                         {
+                            WalkTileMap();
+                            Flip();
+
                             // Should fire an interupt here?
                             if ((memory.IE & 0b_00000001) > 0)
                             {
@@ -194,8 +185,7 @@ namespace axGB.CPU
 
                 case 0b_00000001: // V-Blank
                     if (this.cycles >= 456) // is this right??
-                    {
-                        Flip();
+                    {                        
                         memory.LY++;
 
                         if (memory.LY >= 154)
