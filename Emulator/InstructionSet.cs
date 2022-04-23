@@ -149,7 +149,7 @@ namespace axGB.CPU
                 new Instruction("LD (HL), E",              0, 8,  OP_0x73),     // 0x73
                 new Instruction("LD (HL), H",              0, 8,  OP_0x74),     // 0x74
                 new Instruction("LD (HL), L",              0, 8,  OP_0x75),     // 0x75
-                new Instruction("HALT",                    0, 4,  OP_0xFF),     // 0x76
+                new Instruction("HALT",                    0, 4,  OP_0x76),     // 0x76
                 new Instruction("LD (HL), A",              0, 8,  OP_0x77),     // 0x77
                 new Instruction("LD A, B",                 0, 4,  OP_0x78),     // 0x78
                 new Instruction("LD A, C",                 0, 4,  OP_0x79),     // 0x79
@@ -717,7 +717,7 @@ namespace axGB.CPU
         private void OP_0x73()               => processor.memory.WriteByte(processor.registers.HL, processor.registers.E);
         private void OP_0x74()               => processor.memory.WriteByte(processor.registers.HL, processor.registers.H);
         private void OP_0x75()               => processor.memory.WriteByte(processor.registers.HL, processor.registers.L);
-        // private void OP_0x76()               => HALT
+        private void OP_0x76()               => Halt();
         private void OP_0x77()               => processor.memory.WriteByte(processor.registers.HL, processor.registers.A);
         private void OP_0x78()               => processor.registers.A = processor.registers.B;
         private void OP_0x79()               => processor.registers.A = processor.registers.C;

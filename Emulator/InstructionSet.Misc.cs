@@ -29,5 +29,11 @@ namespace axGB.CPU
         {
             processor.interuptHandler.IME = false;
         }
+
+        private void Halt()
+        {
+            processor.isHalted      = true;
+            processor.registers.PC += 1;
+        }
     }
 }

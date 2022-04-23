@@ -12,7 +12,8 @@ namespace axGB.CPU
         public const int ClockSpeed     = 4194304;
         public const int CyclesPerFrame = (int)(ClockSpeed / 59.7275f);
 
-        internal int             cycles;
+        internal int             cycles   = 0;
+        internal bool            isHalted = false;
 
         internal MemoryBus       memory;
         internal Registers       registers;
@@ -47,6 +48,11 @@ namespace axGB.CPU
         /// <returns>The last opcode that was executed.</returns>
         public int StepInstruction()
         {
+            if (isHalted)
+            {
+                return 0;
+            }
+
             int opcode = memory.ReadByte(registers.PC);
             if (opcode == 0xCB)
             {

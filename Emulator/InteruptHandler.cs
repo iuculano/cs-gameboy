@@ -22,7 +22,17 @@ namespace axGB.CPU
             }
         }
 
-        
+        private void JumpToInterruptVector(ushort vector, byte requestFlag)
+        {
+            var address = processor.registers.SP -= 2;
+            processor.memory.WriteWord(address, processor.registers.PC);
+            processor.registers.PC = vector;
+
+            unchecked
+            {
+                processor.memory.IF &= (byte)~(requestFlag);
+            }
+        }
 
         /// <summary>
         /// Process pending interupts.
@@ -41,44 +51,36 @@ namespace axGB.CPU
                 return;
             }
 
+            processor.isHalted = false;
+
             // VBlank
             if ((processor.memory.IF & 0b_00000001) > 0) 
             {
-                // https://emudev.de/gameboy-emulator/interrupts-and-timers/
-                var address = processor.registers.SP -= 2;
-                processor.memory.WriteWord(address, processor.registers.PC);
-
-                // VBlank interrupt vector
-                processor.registers.PC = 0x0040;
-
-                unchecked
-                {
-                    processor.memory.IF &= (byte)~(0b_00000001);
-                }
+                JumpToInterruptVector(0x0040, 0b_00000001);
             }
 
             // LCD STAT
             if ((processor.memory.IF & 0b_00000010) > 0)
             {
-
+                JumpToInterruptVector(0x0048, 0b_00000010);
             }
 
             // Timer
             if ((processor.memory.IF & 0b_00000100) > 0)
             {
-
+                JumpToInterruptVector(0x0050, 0b_00000100);
             }
 
             // Serial
             if ((processor.memory.IF & 0b_00001000) > 0)
             {
-
+                JumpToInterruptVector(0x0058, 0b_00001000);
             }
 
             // Joypad
             if ((processor.memory.IF & 0b_00010000) > 0)
             {
-
+                
             }
         }
     }
