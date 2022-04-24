@@ -1,14 +1,16 @@
 ﻿using System;
 using axGB.System;
 using System.Drawing;
-using System.Runtime.InteropServices;
-using System.Drawing.Imaging;
 
 
 namespace axGB.CPU
 {
     public partial class GraphicsProcessor
     {
+        public const int ScreenWidth  = 160;
+        public const int ScreenHeight = 144;
+
+
         private MemoryBus memory;
         private int       cycles;
         private uint[]    pallete;
@@ -16,95 +18,69 @@ namespace axGB.CPU
         private GDIRenderer gdi;
 
 
-        // This is a hack to grab the HWND of the console
-
         public void InitRenderer()
         {
-            gdi = new GDIRenderer(160, 144);
+            gdi = new GDIRenderer(ScreenWidth, ScreenHeight);
         }
 
-        public void DrawVram(ReadOnlySpan<byte> data, int x, int y)
+        public void DrawTileScanline(ReadOnlySpan<byte> data, int x, int y)
         {
+            // https://www.huderlem.com/demos/gameboy2bpp.html
 
-        }
+            // 2 bytes make up a row, y is multiplied to compensate for this
+            var one = data[y * 2];
+            var two = data[y * 2 + 1];
 
-        public void DrawTile(ReadOnlySpan<byte> data, int x, int y)
-        {
-            // https://www.huderlem.com/demos/gameboy2bpp.html was super useful
-            // Row
-            for (int _y = 0; _y < 16; _y += 2)
+            // Walk through the bits of the 2 bytes
+            for (int _x = 0; _x < 8; _x++)
             {
-                var one = data[_y];
-                var two = data[_y + 1];
+                // Mask to grab selected bit
+                var bit   = 0b_1000_0000 >> _x;
 
-                for (int _x = 0; _x < 8; _x++)
-                {
-                    // Grab the given bit
-                    var bit   = 0x80 >> _x;
-                    var high  = ((two & bit) > 0) ? 2 : 0;
-                    var low   = ((one & bit) > 0) ? 1 : 0;
-                    var color = (high | low);
+                // Check if said bit is set on the low byte, then high byte
+                var low   = ((one & bit) > 0) ? 0b_0000_0001 : 0;
+                var high  = ((two & bit) > 0) ? 0b_0000_0010 : 0;
+                var color = (high | low);
 
-                    var ix    = (x * 8) + _x;
-                    var iy    = (y * 8) + _y / 2;
-                    var index = (iy * 160) + ix;
-
-                    gdi.SetPixel(ix, iy, pallete[color]);
-                }
+                // Need to multiply by the width of a tile, x represents the
+                // location in tile grid
+                var ix   = (x * 8) + _x;
+                gdi.SetPixel(ix, memory.LY, pallete[color]);
             }
         }
 
-        public void WalkTileMap()
+        public void WalkTileMapScanline(int scanline)
         {
             // https://gbdev.io/pandocs/LCDC.html
             var tileData = ((memory.LCDC & 0b_0001_0000) == 0) ? 0x8800 : 0x8000;
             var tileMap  = ((memory.LCDC & 0b_0000_1000) == 0) ? 0x9800 : 0x9C00;
             var window   =  (memory.LCDC & 0b_0001_0000) == 0;
 
+            // Walk horizontally across the tiles on a given scanline
+            var scanlineToTileIndex = (int)MathF.Floor((float)(scanline * 18) / 144);
+            var tileScanline        = scanline % 8;
 
-            // Iterate over bg tiles
-            for (int y = 0; y < 18; y++)
+            for (int x = 0; x < 20; x++)
             {
-                for (int x = 0; x < 20; x++)
-                {
-                    // Each tile is 16 bytes, so finding the right tile and 
-                    // multiplying by 16 will point at the right spot in memory
-                    var viewY = y + (window ? memory.WY : memory.SCY);
-                    var viewX = x + (window ? memory.WX : memory.SCX);
+                var viewY = scanlineToTileIndex + memory.SCY;
+                var viewX = x + memory.SCX;
 
-                    var index = ((viewY * 32) + viewX);
-                    var id    = memory.Memory[tileMap + index];
-                    var ptr   = tileData + (id * 16);
+                // The background tile map is 32x32, we can simply grab the index
+                // with (y * width) + x as it's just a 2D array
+                var index = ((viewY * 32) + viewX);
+                var id    = memory.Memory[tileMap + index];
 
-                    
-                    var span  = new ReadOnlySpan<byte>(memory.Memory, ptr, 16);
+                // Each tile is 16 bytes, so finding the right tile and 
+                // multiplying by 16 will point at the right spot in memory
+                var ptr   = tileData + (id * 16);
+                var span  = new ReadOnlySpan<byte>(memory.Memory, ptr, 16);
 
-                    DrawTile(span, x, y);
-                }
+                DrawTileScanline(span, x, tileScanline);
             }
-
-            #if DEBUG
-            // This will draw the contents of VRAM to screen
-            
-            /*for (int y = 0; y < 18; y++)
-            {
-                for (int x = 0; x < 20; x++)
-                {
-                    // Each tile is 16 bytes, so finding the right tile and 
-                    // multiplying by 16 will point at the right spot in memory
-                    var index = ((y * 16) + x) * 16;
-                    var ptr   = tileData + index;            
-                    var span  = new ReadOnlySpan<byte>(memory.Memory, ptr, 16);
-
-                    DrawTile(vram, span, x, y);
-                }
-            }*/
-            #endif
         }
 
         public void Flip()
         {
-            //WalkTileMap();
             gdi.Flip();
         }
 
@@ -128,31 +104,36 @@ namespace axGB.CPU
             gdi.Dispose();
         }
 
+        [Flags]
+        private enum GPUMode
+        {
+            HBlank   = 0b_00000000,
+            VBlank   = 0b_00000001,
+            OAM      = 0b_00000010,
+            Transfer = 0b_00000011
+        }
 
-        public int Update(int cycles)
+        public void Update(int cycles)
         {
             // https://www.reddit.com/r/Gameboy/comments/a1c8h0/what_happens_when_a_gameboy_screen_is_disabled/
-            var what = memory.LCDC & 0b_10000000;
+            /*var what = memory.LCDC & 0b_10000000;
             if (what == 0)
             {
-                this.cycles = 0;
-                memory.LY   = 0;
-                memory.STAT = 0b_00000000;
+                //this.cycles = 0;
+                //memory.LY   = 0;
+                //memory.STAT = 0b_00000000;
 
                 return this.cycles;
-            }
+            }*/
 
-            // delta     = cycles - this.cycles;
             this.cycles += cycles;
 
             // https://gbdev.io/pandocs/STAT.html
-            // I quite honestly still have no clue how the timing here works
-            // This is probably wrong, but seemingly good enough to render the
-            // bootstrap rom
-            switch (memory.STAT & 0b_00000011)
+            var mode = (GPUMode)(memory.STAT & 0b_00000011);
+            switch (mode)
             {
-                case 0b_00000000: // H-Blank
-                    if (this.cycles >= 204) // This seems wrong, is this variable?
+                case GPUMode.HBlank:
+                    if (this.cycles >= 204)
                     {
                         // We've written an entire scanline
                         memory.LY++;
@@ -160,7 +141,6 @@ namespace axGB.CPU
                         // 144 - 153 are v-blank
                         if (memory.LY >= 144)
                         {
-                            WalkTileMap();
                             Flip();
 
                             // Should fire an interupt here?
@@ -169,59 +149,57 @@ namespace axGB.CPU
                                 memory.IF |= 0b_00000001;
                             }
 
-                            memory.STAT = 0b_00000001;
+                            memory.STAT = (int)GPUMode.VBlank;
                         }
 
                         else
                         {
                             // http://imrannazar.com/GameBoy-Emulation-in-JavaScript:-GPU-Timings ???
-                            memory.STAT = 0b_00000010; // OAM
+                            memory.STAT = (int)GPUMode.OAM; // OAM
                         }
 
                         this.cycles -= 204;
                     }
-                    
+
                     break;
 
-                case 0b_00000001: // V-Blank
-                    if (this.cycles >= 456) // is this right??
-                    {                        
+                case GPUMode.VBlank:
+                    if (this.cycles >= 456)
+                    {
                         memory.LY++;
 
                         if (memory.LY >= 154)
                         {
                             // I think blow away LY and jump to OAM?
                             memory.LY   = 0;
-                            memory.STAT = 0b_00000010; // OAM
+                            memory.STAT = (int)GPUMode.OAM;
                         }
 
                         this.cycles -= 456;
                     }
-                    
+
                     break;
 
-                case 0b_00000010: // OAM
+                case GPUMode.OAM:
                     if (this.cycles >= 80)
                     {
-                        memory.STAT = 0b_00000011;
+                        memory.STAT  = (int)GPUMode.Transfer;
                         this.cycles -= 80;
                     }
-                    
+
                     break;
 
-                case 0b_00000011: // Transfer
+                case GPUMode.Transfer:
                     if (this.cycles >= 172)
                     {
-                        memory.STAT = 0b_00000000;
+                        WalkTileMapScanline(memory.LY);
+
+                        memory.STAT  = (int)GPUMode.HBlank;
                         this.cycles -= 172;
                     }
 
                     break;
-
             }
-
-
-            return this.cycles;
         }
     }
 }
