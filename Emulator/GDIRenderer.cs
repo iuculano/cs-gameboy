@@ -54,7 +54,7 @@ namespace axGB
         public void Flip()
         {
             // Not really a flip, but...
-            BitBlt(hdc, 0, 0, width, height, hdcBackbuffer, 0, 0, 0x00CC0020); // SRCCOPY = 0x00CC0020
+            BitBlt(hdc, 128, 0, width, height, hdcBackbuffer, 0, 0, 0x00CC0020); // SRCCOPY = 0x00CC0020
             unsafe
             {
                 // Clear the screen
