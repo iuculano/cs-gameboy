@@ -77,13 +77,13 @@ namespace axGB.CPU
             var window   =  (memory.LCDC & (byte)LCDControl.WindowEnabled)         == 0;
 
             // Figure out what row needs to be drawn, and what line from within the tiles
-            var scanlineToTileIndex = (scanline * 18) / 144;
-            var tileScanline        = scanline % 8;
+            var scanlineToTileRow = ((scanline + memory.SCY) * 18) / ScreenHeight;
+            var tileScanline      =  (scanline + memory.SCY) % 8;
 
             // Get tile indicies and pointer to their data for a given scanline
             for (int x = 0; x < 20; x++)
             {
-                var viewY = scanlineToTileIndex + memory.SCY;
+                var viewY = scanlineToTileRow;
                 var viewX = x + memory.SCX;
 
                 // The background tile map is 32x32
