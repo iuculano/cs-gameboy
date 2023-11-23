@@ -1,13 +1,13 @@
 namespace axGB.CPU
 {
-    public partial class InteruptHandler
+    public partial class InterruptHandler
     {
         private Processor processor
         {
             get; init;
         }
 
-        public InteruptHandler(Processor processor)
+        public InterruptHandler(Processor processor)
         {
             this.processor = processor;
         }
@@ -35,10 +35,12 @@ namespace axGB.CPU
         }
 
         /// <summary>
-        /// Process pending interupts.
+        /// Process pending Interrupts.
         /// </summary>
-        public void ProcessInterupts()
+        public void ProcessInterrupts()
         {
+            // https://gbdev.io/pandocs/Interrupts.html
+
             if (IME == false || processor.memory.IE == 0)
             {
                 return;
@@ -52,6 +54,9 @@ namespace axGB.CPU
             }
 
             processor.isHalted = false;
+
+            // Bit      : 7 | 6 | 5 | 4	     | 3      | 2     | 1   | 0
+            // Interrupt: X | X | X | Joypad | Serial | Timer | LCD | VBlank
 
             // VBlank
             if ((processor.memory.IF & 0b_00000001) > 0) 

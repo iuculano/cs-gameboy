@@ -16,7 +16,7 @@ namespace axGB.CPU
         internal bool            isHalted = false;
 
         internal MemoryBus       memory;
-        internal Registers       registers;
+        internal InterruptHandler interruptHandler;
         internal InteruptHandler interuptHandler;
         private  InstructionSet  instructionSet;
         
@@ -24,7 +24,7 @@ namespace axGB.CPU
         {
             this.memory          = memory;
             this.registers       = new Registers();
-            this.interuptHandler = new InteruptHandler(this);
+            this.interruptHandler = new InterruptHandler(this);
             this.instructionSet  = new InstructionSet(this);
 
             // Tetris seems to reset if it thinks all the buttons are held
@@ -38,7 +38,7 @@ namespace axGB.CPU
         /// <returns></returns>
         public int Update()
         {
-            interuptHandler.ProcessInterupts();
+            interruptHandler.ProcessInterrupts();
             return StepInstruction();
         }
 

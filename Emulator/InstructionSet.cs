@@ -842,7 +842,7 @@ namespace axGB.CPU
         private void OP_0xF0(byte operand)   => processor.registers.A = processor.memory.ReadByte((ushort)(0xFF00 + operand));
         private void OP_0xF1()               => processor.registers.AF = (ushort)(Pop() & 0b_11111111_11110000);
         private void OP_0xF2()               => processor.registers.A = processor.memory.ReadByte((ushort)(0xFF00 + processor.registers.C));
-        private void OP_0xF3()               => processor.interuptHandler.IME = false;
+        private void OP_0xF3()               => processor.interruptHandler.IME = false;
         private void OP_0xF5()               => Push(processor.registers.AF);
         private void OP_0xF6(byte   operand) => Or(operand);
         private void OP_0xF7()               => Rst(0x0030);

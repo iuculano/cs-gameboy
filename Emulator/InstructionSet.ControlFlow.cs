@@ -31,7 +31,7 @@ namespace axGB.CPU
 
         private void Reti()
         {
-            processor.interuptHandler.IME = true;
+            processor.interruptHandler.IME = true;
             processor.registers.PC        = Pop();
         }
 

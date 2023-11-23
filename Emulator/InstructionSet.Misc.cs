@@ -21,13 +21,13 @@ namespace axGB.CPU
 
         private void Ei()
         {
-            processor.interuptHandler.IME          = true;
-            processor.interuptHandler.NeedsEIDelay = true;
+            processor.interruptHandler.IME          = true;
+            processor.interruptHandler.NeedsEIDelay = true;
         }
 
         private void Di()
         {
-            processor.interuptHandler.IME = false;
+            processor.interruptHandler.IME = false;
         }
 
         private void Halt()
