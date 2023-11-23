@@ -32,7 +32,7 @@ namespace axGB.CPU
 
         private MemoryBus   memory;
         private int         cycles;
-        private uint[]      pallete;
+        private uint[]      palette;
 
         private GDIRenderer gdi;
 
@@ -66,6 +66,7 @@ namespace axGB.CPU
                 // in the framebuffer we're writing
                 var ix    = (tileCoordinateX * 8) + _x;
                 gdi.SetPixel(ix, scanline, pallete[color]);
+                gdi.SetPixel(pixelIndex, scanline, palette[color]);
             }
         }
 
@@ -109,7 +110,7 @@ namespace axGB.CPU
         {
             InitRenderer();
             this.memory = memory;
-            pallete = new uint[4]
+            palette = new uint[4]
             {
                 // Thank you Adobe color wheel - yes, it's hideous
                 (uint)Color.FromArgb(0xF5, 0x9A, 0x9C).ToArgb(),
