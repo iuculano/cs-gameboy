@@ -47,25 +47,31 @@ namespace axGB.CPU
         {
             // https://www.huderlem.com/demos/gameboy2bpp.html
 
-            // 2 bytes make up a row, y is multiplied to compensate for this
-            var one = data[(tileScanline * 2)];
-            var two = data[(tileScanline * 2) + 1];
+            // 2 bytes make up an entire row - 16 bytes for the entire tile
+            // y is multiplied to compensate for this, for example:
+            // 0 * 2 = 0 - byte 0 and 1 comprise a row
+            // 1 * 2 = 2 - byte 2 and 3 comprise a row
+            // 2 * 2 = 4 - byte 4 and 5 comprise a row...
+            var rowIndex = tileScanline * 2; // This saves an instruction somehow
+            var one      = data[rowIndex];
+            var two      = data[rowIndex + 1];
 
-            // Walk through the bits of the 2 bytes
-            for (int _x = 0; _x < 8; _x++)
+            // Walk through the bits of the 2 bytes, most significant to least
+            for (int x = 0; x < 8; x++)
             {
-                // Mask to grab current bit
-                var bit   = 0b_10000000 >> _x;
+                // Mask to grab just the current bit handling
+                var bit = 0b_10000000 >> x;
 
-                // Check if said bit is set on the low byte, then high byte
-                var low   = ((one & bit) > 0) ? 0b_00000001 : 0;
-                var high  = ((two & bit) > 0) ? 0b_00000010 : 0;
-                var color = (high | low);
+                // 2 bits per pixel, 0b_000000HL
+                // Shift into position depending on which bit we're on
+                var low   = (one & bit) >> (7 - x); // 0b_0000000L
+                var high  = (two & bit) >> (6 - x); // 0b_000000H0
+                var color = high | low;             // 0b_000000HL
 
-                // x is the location we're at in the tile grid, need to map to where
-                // in the framebuffer we're writing
-                var ix    = (tileCoordinateX * 8) + _x;
-                gdi.SetPixel(ix, scanline, pallete[color]);
+                // Need to map to where in the framebuffer we're writing
+                // Each tile is 8 pixels - multiply by 8 to go from tile-space
+                // to pixel-space, plus x for the pixel in the row we're on
+                var pixelIndex = (tileCoordinateX * 8) + x;
                 gdi.SetPixel(pixelIndex, scanline, palette[color]);
             }
         }
