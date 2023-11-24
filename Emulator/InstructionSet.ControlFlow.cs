@@ -32,7 +32,7 @@ namespace axGB.CPU
         private void Reti()
         {
             processor.interruptHandler.IME = true;
-            processor.registers.PC        = Pop();
+            processor.registers.PC         = Pop();
         }
 
         private void Jump(ushort value)
