@@ -24,10 +24,15 @@ namespace axGB.CPU
 
         private void JumpToInterruptVector(ushort vector, byte requestFlag)
         {
+            // https://gbdev.io/pandocs/Interrupts.html
+            IME = false;
+
+            // Like the Call instruction
             var address = processor.registers.SP -= 2;
             processor.memory.WriteWord(address, processor.registers.PC);
             processor.registers.PC = vector;
 
+            // Clear the appropriate interrupt flag
             unchecked
             {
                 processor.memory.IF &= (byte)~(requestFlag);
