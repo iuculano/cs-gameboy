@@ -147,6 +147,18 @@ namespace axGB.System
                             DIV = 0; // Reset on any write
                             break;
 
+                        case 0xFF05:
+                            TIMA = value;
+                            break;
+
+                        case 0xFF06:
+                            TMA = value;
+                            break;
+
+                        case 0xFF07:
+                            TAC = value;
+                            break;
+
                         // Sound Controller
                         case var _ when (address >= 0xFF10 && address <= 0xFF3F):
                             // DebugPrint("Unimplemented MMIO write", "Sound Controller", address, value);
