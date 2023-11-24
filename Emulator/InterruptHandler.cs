@@ -14,13 +14,6 @@ namespace axGB.CPU
 
         public bool IME          { get; set; }
         public bool NeedsEIDelay { get; set; }
-        public bool IsInterruptRequested
-        {
-            get
-            {
-                return processor.memory.IE != 0;
-            }
-        }
 
         private void JumpToInterruptVector(ushort vector, byte requestFlag)
         {
@@ -63,32 +56,39 @@ namespace axGB.CPU
             // Bit      : 7 | 6 | 5 | 4	     | 3      | 2     | 1   | 0
             // Interrupt: X | X | X | Joypad | Serial | Timer | LCD | VBlank
 
+            // Get interrupts are both enabled and signaled
+            byte pendingInterrupts = (byte)(processor.memory.IF & processor.memory.IE);
+
             // VBlank
-            if ((processor.memory.IF & 0b_00000001) > 0) 
+            if ((pendingInterrupts & 0b_00000001) > 0) 
             {
                 JumpToInterruptVector(0x0040, 0b_00000001);
+                return;
             }
 
             // LCD STAT
-            if ((processor.memory.IF & 0b_00000010) > 0)
+            if ((pendingInterrupts & 0b_00000010) > 0)
             {
                 JumpToInterruptVector(0x0048, 0b_00000010);
+                return;
             }
 
             // Timer
-            if ((processor.memory.IF & 0b_00000100) > 0)
+            if ((pendingInterrupts & 0b_00000100) > 0)
             {
                 JumpToInterruptVector(0x0050, 0b_00000100);
+                return;
             }
 
             // Serial
-            if ((processor.memory.IF & 0b_00001000) > 0)
+            if ((pendingInterrupts & 0b_00001000) > 0)
             {
                 JumpToInterruptVector(0x0058, 0b_00001000);
+                return;
             }
 
             // Joypad
-            if ((processor.memory.IF & 0b_00010000) > 0)
+            if ((pendingInterrupts & 0b_00010000) > 0)
             {
                 
             }
