@@ -65,7 +65,7 @@ namespace axGB.CPU
                 new Instruction("INC H",                   0, 4,  OP_0x24),     // 0x24
                 new Instruction("DEC H",                   0, 4,  OP_0x25),     // 0x25
                 new Instruction("LD H, ${0:x2}",           1, 8,  OP_0x26),     // 0x26
-                new Instruction("DAA",                     0, 4,  OP_0xFF),     // 0x27
+                new Instruction("DAA",                     0, 4,  OP_0x27),     // 0x27
                 new Instruction("JR Z, ${0:x2}",           1, 12, OP_0x28),     // 0x28
                 new Instruction("ADD HL, HL",              0, 8,  OP_0x29),     // 0x29
                 new Instruction("LD A, (HL+)",             0, 8,  OP_0x2A),     // 0x2A
@@ -634,6 +634,7 @@ namespace axGB.CPU
         private void OP_0x24()               => processor.registers.H = Inc(processor.registers.H);
         private void OP_0x25()               => processor.registers.H = Dec(processor.registers.H);
         private void OP_0x26(byte   operand) => processor.registers.H = operand;
+        private void OP_0x27()               => Daa();
         private void OP_0x28(byte   operand) => JumpRelative(operand, Flags.Zero, true);
         private void OP_0x29()               => processor.registers.HL = Add(processor.registers.HL, processor.registers.HL);
         private void OP_0x2A()               => processor.registers.A = processor.memory.ReadByte(processor.registers.HL++);
