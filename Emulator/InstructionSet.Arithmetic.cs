@@ -128,5 +128,44 @@ namespace axGB.CPU
 
             return (byte)result;
         }
+
+        private void Daa()
+        {
+            // https://forums.nesdev.org/viewtopic.php?t=15944
+
+            var result = processor.registers.A;
+            if (!HasFlags(Flags.Subtract))
+            {
+                if (HasFlags(Flags.Carry) || processor.registers.A > 0x99)
+                {
+                    result += 0x60;
+                    SetFlags(Flags.Carry, true);
+                }
+
+                if (HasFlags(Flags.HalfCarry) || (processor.registers.A & 0x0F) > 0x09)
+                {
+                    result += 0x06;
+                }
+            }
+
+            else
+            {
+                if (HasFlags(Flags.Carry))
+                {
+                    result -= 0x60;
+                }
+
+                if (HasFlags(Flags.HalfCarry))
+                {
+                    result -= 0x06;
+                }
+            }
+
+            processor.registers.A = result;
+
+            var zero = result == 0;
+            SetFlags(Flags.Zero, zero);
+            SetFlags(Flags.HalfCarry, false);
+        }
     }
 }
