@@ -1,4 +1,5 @@
 ﻿using System;
+using System.Threading;
 using axGB.System;
 
 namespace axGB.CPU
@@ -12,20 +13,20 @@ namespace axGB.CPU
         public const int ClockSpeed     = 4194304;
         public const int CyclesPerFrame = (int)(ClockSpeed / 59.7275f);
 
-        internal int             cycles   = 0;
-        internal bool            isHalted = false;
+        internal int  cycles   = 0;
+        internal bool isHalted = false;
 
-        internal MemoryBus       memory;
+        internal MemoryBus        memory;
+        internal Registers        registers;
         internal InterruptHandler interruptHandler;
-        internal InteruptHandler interuptHandler;
-        private  InstructionSet  instructionSet;
+        internal InstructionSet   instructionSet;
         
         public Processor(MemoryBus memory)
         {
-            this.memory          = memory;
-            this.registers       = new Registers();
+            this.memory           = memory;
+            this.registers        = new Registers();
             this.interruptHandler = new InterruptHandler(this);
-            this.instructionSet  = new InstructionSet(this);
+            this.instructionSet   = new InstructionSet(this);
 
             // Tetris seems to reset if it thinks all the buttons are held
             // so this is here to fudge the system into thinking they're not
