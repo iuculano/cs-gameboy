@@ -64,9 +64,9 @@ namespace axGB.CPU
 
                 // 2 bits per pixel, 0b_000000HL
                 // Shift into position depending on which bit we're on
-                var low   = (one & bit) >> (7 - x); // 0b_0000000L
-                var high  = (two & bit) >> (6 - x); // 0b_000000H0
-                var color = high | low;             // 0b_000000HL
+                var low   = ((one & bit) > 0) ? 0b_00000001 : 0; // 0b_0000000L
+                var high  = ((two & bit) > 0) ? 0b_00000010 : 0; // 0b_000000H0
+                var color = high | low;                          // 0b_000000HL
 
                 // Need to map to where in the framebuffer we're writing
                 // Each tile is 8 pixels - multiply by 8 to go from tile-space
