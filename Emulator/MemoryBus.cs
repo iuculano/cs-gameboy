@@ -9,6 +9,7 @@ namespace axGB.System
     public partial class MemoryBus
     {
         // The basic memory map
+        // https://gbdev.io/pandocs/Memory_Map.html
         public byte[]       Bootstrap { get; init; }
         public byte[]       Memory    { get; init; }
         public Memory<byte> ROM0      { get; init; }

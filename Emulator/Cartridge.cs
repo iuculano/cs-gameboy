@@ -24,6 +24,9 @@ namespace axGB.System
 
     public abstract class Cartridge
     {
+        // Not sure I like how I handle this - ROM here is really just temporary storage
+        // It's really copied over to the memory that the system bus owns, and the
+        // Read/Write functions below interact with that
         public  byte[]          ROM    { get; init; }
         private MemoryBus       memory { get; init; }
         public  CartridgeHeader Header { get; init; }
@@ -51,8 +54,15 @@ namespace axGB.System
             switch (header.CartridgeType)
             {
                 case CartridgeType.RomOnly:
-                case CartridgeType.MBC1: // THIS IS A TOTAL HACK JUST TO LOAD THE TEST ROMS, I DON'T SUPPORT MBC1 YET
                     return new CartridgeNoMBC()
+                    {
+                        ROM    = buffer,
+                        Header = header,
+                        memory = memory
+                    };
+
+                case CartridgeType.MBC1:
+                    return new CartridgeMBC1()
                     {
                         ROM    = buffer,
                         Header = header,
@@ -64,7 +74,8 @@ namespace axGB.System
             }
         }
 
-        // Just a very simple passthrough for read and writes
+        // Just a very simple passthrough for read and writes to ROM.
+        // Not sure I like having such hot & light functions be virtual...
         public virtual byte ReadByte(ushort address)
         {
             return memory.Memory[address];
