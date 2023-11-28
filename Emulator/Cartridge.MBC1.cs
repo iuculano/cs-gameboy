@@ -1,3 +1,5 @@
+using System;
+
 namespace axGB.System
 {
     public sealed class CartridgeMBC1 : Cartridge
@@ -8,9 +10,11 @@ namespace axGB.System
         private byte ramBankNumber; // 2 bits
         private byte bankingMode;   // 1 bit
 
+        private byte[] ram;
+
         public CartridgeMBC1() : base()
         {
-
+            ram = new byte[0x8000]; // 4x 8k banks
         }
 
         public override byte ReadByte(ushort address)
@@ -26,15 +30,15 @@ namespace axGB.System
             switch (address)
             {
                 case var addr when (address >= 0x0000 && address <= 0x3FFF):
-                    //data = (BOOT == 0 && addr <= 0xFF) ? Bootstrap[addr] : cartridge.ReadByte(addr);
+                    data = rom[addr];
                     break;
 
                 case var addr when (address >= 0x4000 && address <= 0x7FFF):
-                    //data = cartridge.ReadByte(addr);
+                    data = rom[addr + (0x4000 * romBankNumber)];
                     break;
 
                 case var addr when (address >= 0xA000 && address <= 0xBFFF):
-                    //ERAM.Span[addr - 0xA000] = value;
+                    data = ram[(addr - 0xA000) + (0x2000 * ramBankNumber)];
                     break;
             }
 

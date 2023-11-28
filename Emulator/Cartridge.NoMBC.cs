@@ -10,5 +10,15 @@ namespace axGB.System
         {
 
         }
+
+        public override byte ReadByte(ushort address)
+        {
+            return rom[address];
+        }
+
+        public override void WriteByte(ushort address, byte value)
+        {
+            Console.WriteLine("Illegal memory write.");
+        }
     }
 }

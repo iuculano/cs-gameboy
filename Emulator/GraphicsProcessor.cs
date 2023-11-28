@@ -37,10 +37,14 @@ namespace axGB.CPU
         private GDIRenderer gdi;
 
 
-
         public void InitRenderer()
         {
             gdi = new GDIRenderer(ScreenWidth, ScreenHeight);
+        }
+
+        public void DrawSpriteScanLine()
+        {
+            
         }
 
         public void DrawTileScanline(ReadOnlySpan<byte> data, int tileCoordinateX, int tileScanline, int scanline)
@@ -79,15 +83,23 @@ namespace axGB.CPU
         public void WalkTileMapRow(int scanline)
         {
             // https://gbdev.io/pandocs/LCDC.html
-            var tileData = ((memory.LCDC & (byte)LCDControl.BackgroundDataArea)    == 0) ? 0x8800 : 0x8000;
-            var tileMap  = ((memory.LCDC & (byte)LCDControl.BackgroundTileMapArea) == 0) ? 0x9800 : 0x9C00;
-            var window   =  (memory.LCDC & (byte)LCDControl.WindowEnabled)         == 0;
 
-            // Figure out what row needs to be drawn, and what line from within the tiles
+            // Memory locations can differ depending how the register is set
+            var tileData = (memory.LCDC & (byte)LCDControl.BackgroundDataArea)    == 0 ? 0x8800 : 0x8000;
+            var tileMap  = (memory.LCDC & (byte)LCDControl.BackgroundTileMapArea) == 0 ? 0x9800 : 0x9C00;
+            var window   = (memory.LCDC & (byte)LCDControl.WindowEnabled)         == 0;
+
+            tileData = tileData - 0x8000;
+            tileMap  = tileMap  - 0x8000;
+
+            // Need to figure out what row needs to be drawn, and what line from within the tiles
+            // scanline will be the LY register, so LY + where the 
+
+            // 
             var scanlineToTileRow = ((scanline + memory.SCY) * 18) / ScreenHeight;
             var tileScanline      =  (scanline + memory.SCY) % 8;
 
-            // Get tile indicies and pointer to their data for a given scanline
+            // Walk through the tiles in a row
             for (int x = 0; x < 20; x++)
             {
                 var viewY = scanlineToTileRow;
@@ -95,12 +107,12 @@ namespace axGB.CPU
 
                 // The background tile map is 32x32
                 var index = ((viewY * 32) + viewX);
-                var id    = memory.Memory[tileMap + index];
+                var id    = memory.VRAM[tileMap + index];
 
                 // Each tile is 16 bytes, so finding the right tile and 
                 // multiplying by 16 will point at the right spot in memory
                 var ptr   = tileData + (id * 16);
-                var span  = new ReadOnlySpan<byte>(memory.Memory, ptr, 16);
+                var span  = new ReadOnlySpan<byte>(memory.VRAM, ptr, 16);
 
                 DrawTileScanline(span, x, tileScanline, scanline);
             }
@@ -119,10 +131,10 @@ namespace axGB.CPU
             palette = new uint[4]
             {
                 // Thank you Adobe color wheel - yes, it's hideous
-                (uint)Color.FromArgb(0xF5, 0x9A, 0x9C).ToArgb(),
-                (uint)Color.FromArgb(0x89, 0x5A, 0x94).ToArgb(),
-                (uint)Color.FromArgb(0xA7, 0xA0, 0xEB).ToArgb(),
-                (uint)Color.FromArgb(0x32, 0x43, 0x31).ToArgb()
+                (uint)Color.FromArgb(0x45, 0x6F, 0xED).ToArgb(),
+                (uint)Color.FromArgb(0xA0, 0xED, 0x3B).ToArgb(),
+                (uint)Color.FromArgb(0xEB, 0x4A, 0x20).ToArgb(),
+                (uint)Color.FromArgb(0x45, 0x4E, 0x6B).ToArgb()
             };
         }
 

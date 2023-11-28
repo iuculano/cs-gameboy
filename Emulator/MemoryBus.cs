@@ -9,16 +9,13 @@ namespace axGB.System
     public partial class MemoryBus
     {
         // The basic memory map
+        // ROM0, ROM0, and ERAM live on the catridge
         // https://gbdev.io/pandocs/Memory_Map.html
-        public byte[]       Bootstrap { get; init; }
-        public byte[]       Memory    { get; init; }
-        public Memory<byte> ROM0      { get; init; }
-        public Memory<byte> ROM1      { get; init; }
-        public Memory<byte> VRAM      { get; init; }
-        public Memory<byte> ERAM      { get; init; }
-        public Memory<byte> WRAM      { get; init; }
-        public Memory<byte> MMIO      { get; init; }
-        public Memory<byte> ZRAM      { get; init; }
+        public byte[] Bootstrap { get; init; }
+        public byte[] VRAM      { get; init; }
+        public byte[] WRAM      { get; init; }
+        public byte[] MMIO      { get; init; }
+        public byte[] HRAM      { get; init; }
         
         // Components
         private Cartridge cartridge { get; set; }
@@ -31,23 +28,15 @@ namespace axGB.System
             // instead until the BOOT register (at 0xFF50) is set to 1
             Bootstrap = File.ReadAllBytes("bootstrap.gb");
 
-
-            Memory = new byte[0x10000];
-            ROM0   = Memory.AsMemory(0x0000..0x4000);
-            ROM1   = Memory.AsMemory(0x4000..0x8000);
-            VRAM   = Memory.AsMemory(0x8000..0xA000);
-            ERAM   = Memory.AsMemory(0xA000..0xC000);
-            WRAM   = Memory.AsMemory(0xC000..0xFF00);
-            MMIO   = Memory.AsMemory(0xFF00..0xFF80);
-            ZRAM   = Memory.AsMemory(0xFF80..0x10000);
+            VRAM = new byte[0x2000]; // 0x8000 - 0x9FFF
+            WRAM = new byte[0x2000]; // 0xC000 - 0xDFFF
+            MMIO = new byte[0x80];   // 0xFF00 - 0xFF7F
+            HRAM = new byte[0x80];   // 0xFF80 - 0xFFFE
         }
 
         public void Connect(Cartridge cartridge)
         {
-            // This is super naive and does not accomodate for ROM size
-            // and will become an issue with cartridges with a MBC
             this.cartridge = cartridge;
-            this.cartridge.ROM.CopyTo(Memory, 0);
         }
 
 
@@ -65,23 +54,32 @@ namespace axGB.System
                     break;
 
                 case var addr when (address >= 0x8000 && address < 0xA000):
-                    data = VRAM.Span[addr - 0x8000];
+                    data = VRAM[addr - 0x8000];
                     break;
 
                 case var addr when (address >= 0xA000 && address < 0xC000):
-                    data = ERAM.Span[addr - 0xA000];
+                    data = cartridge.ReadByte(addr);
                     break;
 
                 case var addr when (address >= 0xC000 && address < 0xFF00):
-                    data = WRAM.Span[addr - 0xC000];
+                    data = WRAM[addr - 0xC000];
                     break;
 
                 case var addr when (address >= 0xFF00 && address < 0xFF80):
-                    data = MMIO.Span[addr - 0xFF00];
+                    // https://www.reddit.com/r/EmuDev/comments/ipap0w/blarggs_cpu_tests_and_the_stop_instruction/
+                    if (addr == 0xFF4D)
+                    {
+                        data = 0xFF;                        
+                    }
+
+                    else
+                    {
+                        data = MMIO[addr - 0xFF00];
+                    }
                     break;
 
                 case var addr when (address >= 0xFF80 && address <= 0xFFFF):
-                    return ZRAM.Span[addr - 0xFF80];
+                    return HRAM[addr - 0xFF80];
 
                 default:
                     throw new Exception($"Illegal memory read: {address}");
@@ -104,23 +102,23 @@ namespace axGB.System
             switch (address) 
             {
                 case var addr when (address >= 0x0000 && address <= 0x3FFF):
-                    Console.WriteLine("ROM0: Illegal memory write - ignoring.");
+                    //cartridge.WriteROM0(addr, value);
                     break;
 
                 case var addr when (address >= 0x4000 && address <= 0x7FFF):
-                    Console.WriteLine("ROM1: Illegal memory write - ignoring.");
+                    //cartridge.WriteROM1(addr, value);
                     break;
 
                 case var addr when (address >= 0x8000 && address <= 0x9FFF):
-                    VRAM.Span[addr - 0x8000] = value;
+                    VRAM[addr - 0x8000] = value;
                     break;
 
                 case var addr when (address >= 0xA000 && address <= 0xBFFF):
-                    ERAM.Span[addr - 0xA000] = value;
+                    cartridge.WriteByte(addr, value);
                     break;
 
                 case var addr when (address >= 0xC000 && address <= 0xDFFF):
-                    WRAM.Span[addr - 0xC000] = value;
+                    WRAM[addr - 0xC000] = value;
                     break;
 
                 case var addr when (address >= 0xFF00 && address <= 0xFF7F):
@@ -130,7 +128,7 @@ namespace axGB.System
                         case 0xFF00:
                             break;
 
-                        // Serial
+                        // Serial - intercept this for debug purposes
                         case 0xFF02:
                         {
                             // Deviation from this value seems to be a sign the transfer is complete
@@ -145,67 +143,23 @@ namespace axGB.System
 
                         // Timer and Divider Registers
                         case 0xFF04:
-                            DIV = 0; // Reset on any write
+                            DIV = 0; // Writes to this register set it to 0
                             break;
 
-                        case 0xFF05:
-                            TIMA = value;
-                            break;
-
-                        case 0xFF06:
-                            TMA = value;
-                            break;
-
-                        case 0xFF07:
-                            TAC = value;
-                            break;
-
-                        // Sound Controller
-                        case var _ when (address >= 0xFF10 && address <= 0xFF3F):
-                            // DebugPrint("Unimplemented MMIO write", "Sound Controller", address, value);
-                            MMIO.Span[addr - 0xFF00] = value;
-                            break;
-
-                        case 0xFF40:
-                            LCDC = value;
-                            break;
-
-                        case 0xFF41:
-                            STAT = value;
-                            break;
-
-                        case 0xFF42:
-                            SCY = value;
-                            break;
-
-                        case 0xFF44:
-                            LY = value;
-                            break;
-
-                        case 0xFF45:
-                            LYC = value;
-                            break;
-
-                        // DMG Boot register
-                        case 0xFF50:
-                            BOOT = value;
-                            break;
- 
                         default:
                             // Pass through
-                            MMIO.Span[addr - 0xFF00] = value;
+                            MMIO[addr - 0xFF00] = value;
                             break;
                     }
 
                     break;
 
                 case var addr when (address >= 0xFF80 && address <= 0xFFFF):
-                    ZRAM.Span[addr - 0xFF80] = value;
+                    HRAM[addr - 0xFF80] = value;
                     break;
 
                 default:
                     break;
-                    //throw new Exception($"Illegal memory access: {address:X2}");
             }
         }
 
@@ -213,11 +167,6 @@ namespace axGB.System
         {
             WriteByte(address,               (byte) (value & 0x00FF));
             WriteByte((ushort)(address + 1), (byte)((value & 0xFF00) >> 8));
-        }
-
-        public void InitializeMBC(Cartridge cartridge)
-        {
-
         }
     }
 }
