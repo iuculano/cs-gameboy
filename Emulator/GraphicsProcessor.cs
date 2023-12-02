@@ -30,21 +30,28 @@ namespace axGB.CPU
             ObjectPriorityEnabled = 0b_00000001,
         }
 
-        private MemoryBus   memory;
-        private int         cycles;
-        private uint[]      palette;
+        private readonly MemoryBus memory;
+        private readonly uint[]    palette;
+        private int                cycles;
 
-        private GDIRenderer gdi;
-
-
-        public void InitRenderer()
+        // Translated framebuffer
+        private uint[] backbuffer = new uint[(ScreenWidth * ScreenHeight)];
+        public  uint[] Backbuffer
         {
-            gdi = new GDIRenderer(ScreenWidth, ScreenHeight);
+            get         => backbuffer;
+            private set => backbuffer = value;
+        }
+
+        private bool isReadyToRender;
+        public bool  IsReadyToRender
+        {
+            get         => isReadyToRender;
+            private set => isReadyToRender = value;
         }
 
         public void DrawSpriteScanLine()
         {
-            
+            throw new NotSupportedException();
         }
 
         public void DrawTileScanline(ReadOnlySpan<byte> data, int tileCoordinateX, int tileScanline, int scanline)
@@ -76,7 +83,7 @@ namespace axGB.CPU
                 // Each tile is 8 pixels - multiply by 8 to go from tile-space
                 // to pixel-space, plus x for the pixel in the row we're on
                 var pixelIndex = (tileCoordinateX * 8) + x;
-                gdi.SetPixel(pixelIndex, scanline, palette[color]);
+                backbuffer[(scanline * ScreenWidth) + pixelIndex] = palette[color];
             }
         }
 
@@ -94,8 +101,6 @@ namespace axGB.CPU
 
             // Need to figure out what row needs to be drawn, and what line from within the tiles
             // scanline will be the LY register, so LY + where the 
-
-            // 
             var scanlineToTileRow = ((scanline + memory.SCY) * 18) / ScreenHeight;
             var tileScanline      =  (scanline + memory.SCY) % 8;
 
@@ -109,7 +114,7 @@ namespace axGB.CPU
                 var index = ((viewY * 32) + viewX);
                 var id    = memory.VRAM[tileMap + index];
 
-                // Each tile is 16 bytes, so finding the right tile and 
+                // Each tile is 16 bytes, so finding the right tile and
                 // multiplying by 16 will point at the right spot in memory
                 var ptr   = tileData + (id * 16);
                 var span  = new ReadOnlySpan<byte>(memory.VRAM, ptr, 16);
@@ -118,15 +123,8 @@ namespace axGB.CPU
             }
         }
 
-        public void Flip()
-        {
-            gdi.Flip();
-        }
-
-
         public GraphicsProcessor(MemoryBus memory)
         {
-            InitRenderer();
             this.memory = memory;
             palette = new uint[4]
             {
@@ -140,11 +138,13 @@ namespace axGB.CPU
 
         ~GraphicsProcessor()
         {
-            gdi.Dispose();
+
         }
 
         public void Update(int cycles)
         {
+            isReadyToRender = false;
+
             // https://www.reddit.com/r/Gameboy/comments/a1c8h0/what_happens_when_a_gameboy_screen_is_disabled/
             /*var what = memory.LCDC & 0b_10000000;
             if (what == 0)
@@ -171,7 +171,8 @@ namespace axGB.CPU
                         // 144 - 153 are v-blank
                         if (memory.LY >= 144)
                         {
-                            Flip();
+                            // Don't directly render here, rather signal that we're ready to render
+                            isReadyToRender = true;
 
                             if ((memory.IE & 0b_00000001) > 0)
                             {
