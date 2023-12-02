@@ -6,7 +6,7 @@ namespace axGB.System
     {
         // https://gbdev.io/pandocs/MBC1.html
         private byte ramEnable;     // 4 bits
-        private byte romBankNumber; // 5 bits
+        private byte romBankNumber = 1; // 5 bits
         private byte ramBankNumber; // 2 bits
         private byte bankingMode;   // 1 bit
 
@@ -34,7 +34,7 @@ namespace axGB.System
                     break;
 
                 case var addr when (address >= 0x4000 && address <= 0x7FFF):
-                    data = rom[addr + (0x4000 * romBankNumber)];
+                    data = rom[addr - 0x4000 + (0x4000 * romBankNumber)];
                     break;
 
                 case var addr when (address >= 0xA000 && address <= 0xBFFF):
