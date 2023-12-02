@@ -78,7 +78,7 @@ namespace axGB.CPU
                 {
                     var func      = (Action<byte>)instruction.Function;
                     var operand   = memory.ReadByte(++registers.PC);
-                    disassembly   = String.Format(instruction.Disassembly, operand);
+                    // disassembly   = String.Format(instruction.Disassembly, operand);
                     registers.PC += 1;
 
                     func.Invoke(operand);
@@ -89,7 +89,7 @@ namespace axGB.CPU
                 {
                     var func      = (Action<ushort>)instruction.Function;
                     var operand   = memory.ReadWord(++registers.PC);
-                    disassembly   = String.Format(instruction.Disassembly, operand);
+                    // disassembly   = String.Format(instruction.Disassembly, operand);
                     registers.PC += 2;
 
                     func.Invoke(operand);
@@ -99,7 +99,7 @@ namespace axGB.CPU
                 default:
                 {
                     var func      = (Action)instruction.Function;
-                    disassembly   = instruction.Disassembly;
+                    // disassembly   = instruction.Disassembly;
                     registers.PC += 1;
 
                     func.Invoke();
