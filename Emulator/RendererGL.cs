@@ -2,7 +2,7 @@
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
 
-namespace axGB.Emulator
+namespace axGB
 {
     public class RendererGL : IRenderer
     {

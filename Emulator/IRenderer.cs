@@ -1,7 +1,7 @@
 ﻿using Silk.NET.Windowing;
 using System;
 
-namespace axGB.Emulator
+namespace axGB
 {
     public interface IRenderer
     {
