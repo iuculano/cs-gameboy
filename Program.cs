@@ -57,7 +57,7 @@ namespace axGB
         static void Main(string[] args)
         {
             var options   = WindowOptions.Default;
-            options.Size  = new Vector2D<int>(800, 600);
+            options.Size  = new Vector2D<int>(800, 720);
 
             window         = Window.Create(options);
             window.Load   += OnLoad;
