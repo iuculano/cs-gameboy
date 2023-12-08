@@ -54,11 +54,11 @@ namespace axGB.System
                     data = cartridge.ReadByte(addr);
                     break;
 
-                case var addr when (address <= 0xA000):
+                case var addr when (address <= 0x9FFF):
                     data = VRAM[addr - 0x8000];
                     break;
 
-                case var addr when (address <= 0xC000):
+                case var addr when (address <= 0xBFFF):
                     data = cartridge.ReadByte(addr);
                     break;
 
