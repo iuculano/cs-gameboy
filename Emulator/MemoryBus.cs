@@ -1,7 +1,6 @@
 ﻿using System;
 using System.IO;
 using System.Text;
-using System.Diagnostics;
 
 
 namespace axGB.System
@@ -116,27 +115,38 @@ namespace axGB.System
         {
             switch (address) 
             {
-                case var addr when (address >= 0x0000 && address <= 0x3FFF):
-                    //cartridge.WriteROM0(addr, value);
+                case var addr when (address <= 0x3FFF):
+                    cartridge.WriteByte(addr, value); // Illegal, but handled by the cartridge
                     break;
 
-                case var addr when (address >= 0x4000 && address <= 0x7FFF):
-                    //cartridge.WriteROM1(addr, value);
+                case var addr when (address <= 0x7FFF):
+                    cartridge.WriteByte(addr, value); // Illegal, but handled by the cartridge
                     break;
 
-                case var addr when (address >= 0x8000 && address <= 0x9FFF):
+                case var addr when (address <= 0x9FFF):
                     VRAM[addr - 0x8000] = value;
                     break;
 
-                case var addr when (address >= 0xA000 && address <= 0xBFFF):
+                case var addr when (address <= 0xBFFF):
                     cartridge.WriteByte(addr, value);
                     break;
 
-                case var addr when (address >= 0xC000 && address <= 0xDFFF):
-                    WRAM[addr - 0xC000] = value;
+                case var addr when (address <= 0xDFFF): // Looks like this plays a part in CGB
+                    WRAM[addr - 0xC000] = value;        // Just ignore that for now...
                     break;
 
-                case var addr when (address >= 0xFF00 && address <= 0xFF7F):
+                case var addr when (address <= 0xFDFF): // This seemingly shouldn't happen, but it
+                    WRAM[addr - 0xE000] = value;        // seems writes do succeed?
+                    break;
+
+                case var addr when (address <= 0xFE9F):
+                    OAM[addr - 0xFE00] = value;
+                    break;
+
+                case var addr when (address <= 0xFEFF): // Presumably a no-op
+                    break;
+
+                case var addr when (address <= 0xFF7F):
                     switch (addr)
                     {
                         // Joypad
@@ -161,6 +171,18 @@ namespace axGB.System
                             DIV = 0; // Writes to this register set it to 0
                             break;
 
+                        // Don't know if this is correct to check this here, because writes
+                        // may trigger this on the write that would line them up, rather than
+                        // it lingering for a round
+                        // case 0xFF45:
+                        // {
+                        //     if (LYC == LY)
+                        //     {
+                        //         // https://gbdev.io/pandocs/STAT.html#ff41--stat-lcd-status
+                        //     }
+                        //     break;
+                        // }
+
                         default:
                             // Pass through
                             MMIO[addr - 0xFF00] = value;
@@ -169,7 +191,7 @@ namespace axGB.System
 
                     break;
 
-                case var addr when (address >= 0xFF80 && address <= 0xFFFF):
+                case var addr when (address <= 0xFFFF):
                     HRAM[addr - 0xFF80] = value;
                     break;
 
