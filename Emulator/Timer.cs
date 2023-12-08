@@ -25,7 +25,7 @@ namespace axGB.System
             
             // Update DIV - note that it always ticks
             // 4194304 cycles / 16384 = 256, Divider updates every 256 cycles
-            if (divAccumulator >= 255)
+            if (divAccumulator >= 256)
             {
                 // Increment this outside of the memory bus because writes to this register
                 // through it will reset this register to 0
@@ -40,7 +40,7 @@ namespace axGB.System
                 // The frequency of which it's updated depends on what's in the TAC register
                 var frequency = tacFrequencyTable[memory.TAC & 0b_00000011];
 
-                if (timaAccumulator >= frequency - 1)
+                if (timaAccumulator >= frequency)
                 {
                     var pendingValue = memory.TIMA + 1; // Check for overflow
                     if (pendingValue > 0xFF)
