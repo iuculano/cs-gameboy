@@ -14,6 +14,7 @@ namespace axGB.System
         public byte[] Bootstrap { get; init; }
         public byte[] VRAM      { get; init; }
         public byte[] WRAM      { get; init; }
+        public byte[] OAM       { get; init; }
         public byte[] MMIO      { get; init; }
         public byte[] HRAM      { get; init; }
         
@@ -30,6 +31,7 @@ namespace axGB.System
 
             VRAM = new byte[0x2000]; // 0x8000 - 0x9FFF
             WRAM = new byte[0x2000]; // 0xC000 - 0xDFFF
+            OAM  = new byte[0xA0];   // 0xFE00 - 0xFE9F
             MMIO = new byte[0x80];   // 0xFF00 - 0xFF7F
             HRAM = new byte[0x80];   // 0xFF80 - 0xFFFE
         }
@@ -45,27 +47,40 @@ namespace axGB.System
             byte data;
             switch (address) 
             {
-                case var addr when (address >= 0x0000 && address <= 0x3FFF):
+                case var addr when (address <= 0x3FFF):
                     data = (BOOT == 0 && addr <= 0xFF) ? Bootstrap[addr] : cartridge.ReadByte(addr);
                     break;
 
-                case var addr when (address >= 0x4000 && address <= 0x7FFF):
+                case var addr when (address <= 0x7FFF):
                     data = cartridge.ReadByte(addr);
                     break;
 
-                case var addr when (address >= 0x8000 && address < 0xA000):
+                case var addr when (address <= 0xA000):
                     data = VRAM[addr - 0x8000];
                     break;
 
-                case var addr when (address >= 0xA000 && address < 0xC000):
+                case var addr when (address <= 0xC000):
                     data = cartridge.ReadByte(addr);
                     break;
 
-                case var addr when (address >= 0xC000 && address < 0xFF00):
+                case var addr when (address <= 0xDFFF):
                     data = WRAM[addr - 0xC000];
                     break;
 
-                case var addr when (address >= 0xFF00 && address < 0xFF80):
+                case var addr when (address <= 0xFDFF): // ECHO
+                    data = WRAM[addr - 0xE000];
+                    break;
+
+                case var addr when (address <= 0xFE9F):
+                    data = OAM[addr - 0xFE00];
+                    break;
+
+                case var addr when (address <= 0xFEFF):
+                    // I guess a read from here is just completely undefined?
+                    data = 0xFF;
+                    break;
+
+                case var addr when (address <= 0xFF7F):
                     // https://www.reddit.com/r/EmuDev/comments/ipap0w/blarggs_cpu_tests_and_the_stop_instruction/
                     if (addr == 0xFF4D)
                     {
@@ -78,7 +93,7 @@ namespace axGB.System
                     }
                     break;
 
-                case var addr when (address >= 0xFF80 && address <= 0xFFFF):
+                case var addr when (address <= 0xFFFF):
                     return HRAM[addr - 0xFF80];
 
                 default:
