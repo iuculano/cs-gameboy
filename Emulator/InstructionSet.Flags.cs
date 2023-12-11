@@ -1,6 +1,5 @@
 using System;
 
-
 namespace axGB.CPU
 {
     public partial class InstructionSet

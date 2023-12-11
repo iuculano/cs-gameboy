@@ -1,7 +1,6 @@
-﻿using System;
-using axGB.System;
+using System;
 using System.Drawing;
-
+using axGB.System;
 
 namespace axGB.CPU
 {
@@ -35,19 +34,8 @@ namespace axGB.CPU
         private int                cycles;
 
         // Translated framebuffer
-        private uint[] backbuffer = new uint[(ScreenWidth * ScreenHeight)];
-        public  uint[] Backbuffer
-        {
-            get         => backbuffer;
-            private set => backbuffer = value;
-        }
-
-        private bool isReadyToRender;
-        public bool  IsReadyToRender
-        {
-            get         => isReadyToRender;
-            private set => isReadyToRender = value;
-        }
+        public uint[] Backbuffer      { get; private set; } = new uint[ScreenWidth * ScreenHeight];
+        public bool   IsReadyToRender { get; private set; }
 
         public void DrawSpriteScanLine()
         {
@@ -68,22 +56,22 @@ namespace axGB.CPU
             var two      = data[rowIndex + 1];
 
             // Walk through the bits of the 2 bytes, most significant to least
-            for (int x = 0; x < 8; x++)
+            for (var x = 0; x < 8; x++)
             {
                 // Mask to grab just the current bit handling
                 var bit = 0b_10000000 >> x;
 
                 // 2 bits per pixel, 0b_000000HL
                 // Shift into position depending on which bit we're on
-                var low   = ((one & bit) > 0) ? 0b_00000001 : 0; // 0b_0000000L
-                var high  = ((two & bit) > 0) ? 0b_00000010 : 0; // 0b_000000H0
-                var color = high | low;                          // 0b_000000HL
+                var low   = (one & bit) > 0 ? 0b_00000001 : 0; // 0b_0000000L
+                var high  = (two & bit) > 0 ? 0b_00000010 : 0; // 0b_000000H0
+                var color = high | low;                        // 0b_000000HL
 
                 // Need to map to where in the framebuffer we're writing
                 // Each tile is 8 pixels - multiply by 8 to go from tile-space
                 // to pixel-space, plus x for the pixel in the row we're on
                 var pixelIndex = (tileCoordinateX * 8) + x;
-                backbuffer[(scanline * ScreenWidth) + pixelIndex] = palette[color];
+                Backbuffer[(scanline * ScreenWidth) + pixelIndex] = palette[color];
             }
         }
 
@@ -105,13 +93,13 @@ namespace axGB.CPU
             var tileScanline      =  (scanline + memory.SCY) % 8;
 
             // Walk through the tiles in a row
-            for (int x = 0; x < 20; x++)
+            for (var x = 0; x < 20; x++)
             {
                 var viewY = scanlineToTileRow;
                 var viewX = x + memory.SCX;
 
                 // The background tile map is 32x32
-                var index = ((viewY * 32) + viewX);
+                var index = (viewY * 32) + viewX;
                 var id    = memory.VRAM[tileMap + index];
 
                 // Each tile is 16 bytes, so finding the right tile and
@@ -143,7 +131,7 @@ namespace axGB.CPU
 
         public void Update(int cycles)
         {
-            isReadyToRender = false;
+            IsReadyToRender = false;
 
             // https://www.reddit.com/r/Gameboy/comments/a1c8h0/what_happens_when_a_gameboy_screen_is_disabled/
             /*var what = memory.LCDC & 0b_10000000;
@@ -172,7 +160,7 @@ namespace axGB.CPU
                         if (memory.LY >= 144)
                         {
                             // Don't directly render here, rather signal that we're ready to render
-                            isReadyToRender = true;
+                            IsReadyToRender = true;
 
                             if ((memory.IE & 0b_00000001) > 0)
                             {

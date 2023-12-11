@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 
 namespace axGB.CPU
 {
@@ -15,22 +15,26 @@ namespace axGB.CPU
 
         public string Disassembly
         {
-            get; init;
+            get;
+            init;
         }
 
         public int OperandLength
         {
-            get; init;
+            get;
+            init;
         }
 
         public int Cycles
         {
-            get; init;
+            get;
+            init;
         }
 
         public Delegate Function
         {
-            get; init;
+            get;
+            init;
         }
     }
 }

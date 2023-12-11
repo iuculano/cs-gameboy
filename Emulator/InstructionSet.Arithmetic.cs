@@ -1,5 +1,4 @@
-﻿using System;
-
+using System;
 
 namespace axGB.CPU
 {
@@ -8,9 +7,9 @@ namespace axGB.CPU
         private byte Inc(byte register)
         {
             var result = register + 1;
-            
-            var zero   = (byte)result == 0;
-            var half   = ((register & 0x0F) + 1) > 0x0F;
+
+            var zero = (byte)result == 0;
+            var half = (register & 0x0F) + 1 > 0x0F;
 
             SetFlags(Flags.Zero,      zero);
             SetFlags(Flags.Subtract,  false);
@@ -22,9 +21,9 @@ namespace axGB.CPU
         private byte Dec(byte register)
         {
             var result = register - 1;
-            
-            var zero   = (byte)result == 0;           // Half carry is set if it's less than 0
-            var half   = ((register & 0x0F) - 1) < 0; // https://gbdev.io/pandocs/CPU_Registers_and_Flags.html
+
+            var zero = (byte)result == 0;         // Half carry is set if it's less than 0
+            var half = (register & 0x0F) - 1 < 0; // https://gbdev.io/pandocs/CPU_Registers_and_Flags.html
 
             SetFlags(Flags.Zero,      zero);
             SetFlags(Flags.Subtract,  true);
@@ -37,15 +36,15 @@ namespace axGB.CPU
         {
             var result = register + value;
 
-            var zero   = (byte)result  == 0;
-            var half   = ((register & 0x0F) + (value & 0x0F)) > 0x0F;
-            var carry  = result > 0xFF;
-            
+            var zero  = (byte)result == 0;
+            var half  = (register & 0x0F) + (value & 0x0F) > 0x0F;
+            var carry = result > 0xFF;
+
             SetFlags(Flags.Zero,      zero);
             SetFlags(Flags.Subtract,  false);
             SetFlags(Flags.HalfCarry, half);
             SetFlags(Flags.Carry,     carry);
-            
+
             return (byte)result;
         }
 
@@ -53,14 +52,14 @@ namespace axGB.CPU
         {
             var result = register + value;
 
-            var zero   = (byte)result  == 0;
-            var half   = ((register & 0x0FFF) + (value & 0x0FFF)) > 0x0FFF;
-            var carry  = result > 0xFFFF;
-            
+            var zero  = (byte)result == 0;
+            var half  = (register & 0x0FFF) + (value & 0x0FFF) > 0x0FFF;
+            var carry = result > 0xFFFF;
+
             SetFlags(Flags.Subtract,  false);
             SetFlags(Flags.HalfCarry, half);
             SetFlags(Flags.Carry,     carry);
-            
+
             return (ushort)result;
         }
 
@@ -68,9 +67,9 @@ namespace axGB.CPU
         {
             var result = processor.registers.SP + (sbyte)value;
 
-            var half   = ((processor.registers.SP & 0x0F) + (value & 0x0F)) > 0x0F;
-            var carry  = ((processor.registers.SP & 0xFF) + value) > 0xFF;  // I'm not entirely sure why this works :|
-                                                                            // I'd think it'd be (sbyte)value, but that fails
+            var half  = (processor.registers.SP & 0x0F) + (value & 0x0F) > 0x0F;
+            var carry = (processor.registers.SP & 0xFF) + value > 0xFF; // I'm not entirely sure why this works :|
+            // I'd think it'd be (sbyte)value, but that fails
             SetFlags(Flags.Zero,      false);
             SetFlags(Flags.Subtract,  false);
             SetFlags(Flags.HalfCarry, half);
@@ -82,11 +81,11 @@ namespace axGB.CPU
         private byte Adc(byte register, byte value)
         {
             var hasCarry = Convert.ToInt32(HasFlags(Flags.Carry));
-            var result   = (register + value) + hasCarry;  
+            var result   = register + value + hasCarry;
 
-            var zero     = (byte)result == 0;
-            var half     = ((register & 0x0F) + (value & 0x0F) + hasCarry) > 0x0F;
-            var carry    = result > 0xFF;
+            var zero  = (byte)result == 0;
+            var half  = (register & 0x0F) + (value & 0x0F) + hasCarry > 0x0F;
+            var carry = result > 0xFF;
 
             SetFlags(Flags.Zero,      zero);
             SetFlags(Flags.Subtract,  false);
@@ -95,14 +94,14 @@ namespace axGB.CPU
 
             return (byte)result;
         }
-        
+
         private byte Sub(byte register, byte value)
         {
             var result = register - value;
-            
-            var zero   = (byte)result == 0;
-            var half   = ((register & 0x0F) - (value & 0x0F)) < 0;
-            var carry  = result < 0;
+
+            var zero  = (byte)result == 0;
+            var half  = (register & 0x0F) - (value & 0x0F) < 0;
+            var carry = result < 0;
 
             SetFlags(Flags.Zero,      zero);
             SetFlags(Flags.Subtract,  true);
@@ -115,11 +114,11 @@ namespace axGB.CPU
         private byte Sbc(byte register, byte value)
         {
             var hasCarry = Convert.ToInt32(HasFlags(Flags.Carry));
-            var result   = (register - value) - hasCarry;
+            var result   = register - value - hasCarry;
 
-            var zero     = (byte)result == 0;
-            var half     = ((register & 0x0F) - (value & 0x0F) - hasCarry) < 0;
-            var carry    = result < 0;
+            var zero  = (byte)result == 0;
+            var half  = (register & 0x0F) - (value & 0x0F) - hasCarry < 0;
+            var carry = result < 0;
 
             SetFlags(Flags.Zero,      zero);
             SetFlags(Flags.Subtract,  true);
@@ -164,7 +163,7 @@ namespace axGB.CPU
             processor.registers.A = result;
 
             var zero = result == 0;
-            SetFlags(Flags.Zero, zero);
+            SetFlags(Flags.Zero,      zero);
             SetFlags(Flags.HalfCarry, false);
         }
     }

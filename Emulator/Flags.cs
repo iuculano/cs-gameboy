@@ -11,5 +11,5 @@ namespace axGB.CPU
         HalfCarry = 0b_00100000,
         Carry     = 0b_00010000,
         All       = 0b_11110000
-    };
+    }
 }

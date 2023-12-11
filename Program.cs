@@ -1,6 +1,5 @@
 ﻿using axGB.CPU;
 using axGB.System;
-
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;

@@ -1,8 +1,6 @@
-using System;
-
 namespace axGB.System
 {
-    public enum IORegister : int
+    public enum IORegister
     {
         JOYP = 0x00,
         SB   = 0x01,

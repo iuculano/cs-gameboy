@@ -1,6 +1,3 @@
-﻿using System;
-
-
 namespace axGB.CPU
 {
     public partial class InstructionSet
@@ -24,8 +21,8 @@ namespace axGB.CPU
         {
             if (HasFlags(flags) == condition)
             {
-                processor.registers.PC  = Pop();
-                processor.cycles       += 12;
+                processor.registers.PC = Pop();
+                processor.cycles      += 12;
             }
         }
 
@@ -52,7 +49,7 @@ namespace axGB.CPU
         private void JumpRelative(byte value)
         {
             // value can be negative here, it's possible to jump backwards
-            var pc                 = (int)(processor.registers.PC) + (sbyte)value;
+            var pc = processor.registers.PC + (sbyte)value;
             processor.registers.PC = (ushort)pc;
         }
 
@@ -69,9 +66,9 @@ namespace axGB.CPU
         {
             var result = processor.registers.A - value;
 
-            var zero   = (byte)result == 0;
-            var half   = ((processor.registers.A & 0x0F) - (value & 0x0F)) < 0;
-            var carry  = result < 0;
+            var zero  = (byte)result == 0;
+            var half  = (processor.registers.A & 0x0F) - (value & 0x0F) < 0;
+            var carry = result < 0;
 
             SetFlags(Flags.Zero,      zero);
             SetFlags(Flags.Subtract,  true);

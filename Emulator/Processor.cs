@@ -1,13 +1,12 @@
-﻿using System;
-using System.Threading;
+using System;
 using axGB.System;
 
 namespace axGB.CPU
 {
     /// <summary>
-    /// The GameBoy processor.
+    ///     The GameBoy processor.
     /// </summary>
-    public partial class Processor
+    public class Processor
     {
         // https://en.wikipedia.org/wiki/Game_Boy
         public const int ClockSpeed     = 4194304;
@@ -23,10 +22,10 @@ namespace axGB.CPU
         
         public Processor(MemoryBus memory)
         {
-            this.memory           = memory;
-            this.registers        = new Registers();
-            this.interruptHandler = new InterruptHandler(this);
-            this.instructionSet   = new InstructionSet(this);
+            this.memory      = memory;
+            registers        = new Registers();
+            interruptHandler = new InterruptHandler(this);
+            instructionSet   = new InstructionSet(this);
 
             // Tetris seems to reset if it thinks all the buttons are held
             // so this is here to fudge the system into thinking they're not
@@ -67,7 +66,7 @@ namespace axGB.CPU
                     can be accessed just by adding 256 to the opcode.
                 */
 
-                opcode = (256 + memory.ReadByte((ushort)(registers.PC + 1)));
+                opcode = 256 + memory.ReadByte((ushort)(registers.PC + 1));
             }
 
             var instruction = instructionSet.Opcodes[opcode];

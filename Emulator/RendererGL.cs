@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Text;
 using Silk.NET.OpenGL;
 using Silk.NET.Windowing;
@@ -7,7 +7,7 @@ namespace axGB
 {
     public class RendererGL : IRenderer
     {
-        private GL gl;
+        private readonly GL gl;
 
         private uint vertexFormat;
         private uint vertexBuffer;

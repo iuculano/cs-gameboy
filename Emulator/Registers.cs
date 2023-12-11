@@ -1,4 +1,4 @@
-﻿namespace axGB.CPU
+namespace axGB.CPU
 {
     /// <summary>
     /// GameBoy register file.

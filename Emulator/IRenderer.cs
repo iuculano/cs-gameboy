@@ -1,5 +1,5 @@
-﻿using Silk.NET.Windowing;
 using System;
+using Silk.NET.Windowing;
 
 namespace axGB
 {

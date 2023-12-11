@@ -2,31 +2,31 @@ namespace axGB.System
 {
     // Pretty much all of this came from here:
     // https://gbdev.gg8.se/wiki/articles/The_Cartridge_Header
-    public enum ROMSize : int
+    public enum ROMSize
     {
         // This reads dumb, but can't start with a number :|
-         Kilobytes32  = 0x00,
-         Kilobytes64  = 0x01,
-         Kilobytes128 = 0x02,
-         Kilobytes256 = 0x03,
-         Kilobytes512 = 0x04,
-         Megabytes1   = 0x05,
-         Megabytes2   = 0x06,
-         Megabytes4   = 0x07,
-         Megabytes8   = 0x08
+        Kilobytes32  = 0x00,
+        Kilobytes64  = 0x01,
+        Kilobytes128 = 0x02,
+        Kilobytes256 = 0x03,
+        Kilobytes512 = 0x04,
+        Megabytes1   = 0x05,
+        Megabytes2   = 0x06,
+        Megabytes4   = 0x07,
+        Megabytes8   = 0x08
     }
 
-    public enum RAMSize : int
+    public enum RAMSize
     {
         None         = 0x00,
         Kilobytes2   = 0x01,
         Kilobytes8   = 0x02,
         Kilobytes32  = 0x03,
         Kilobytes64  = 0x05, // Yes, 5 - apparently
-        Kilobytes128 = 0x04,
+        Kilobytes128 = 0x04
     }
 
-    public enum CartridgeType : int
+    public enum CartridgeType
     {
         RomOnly                    = 0x00,
         MBC1                       = 0x01,
@@ -54,7 +54,7 @@ namespace axGB.System
         MBC7SensorRumbleRamBattery = 0x22
     }
 
-    public enum DestinationCode : int
+    public enum DestinationCode
     {
         Japanese    = 0x00,
         NonJapanese = 0x01

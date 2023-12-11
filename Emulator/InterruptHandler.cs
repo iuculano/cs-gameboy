@@ -1,15 +1,16 @@
 namespace axGB.CPU
 {
-    public partial class InterruptHandler
+    public class InterruptHandler
     {
-        private Processor processor
-        {
-            get; init;
-        }
 
         public InterruptHandler(Processor processor)
         {
             this.processor = processor;
+        }
+
+        private Processor processor
+        {
+            get;
         }
 
         public bool IME          { get; set; }
@@ -18,7 +19,11 @@ namespace axGB.CPU
         private void JumpToInterruptVector(ushort vector, byte requestFlag)
         {
             // https://gbdev.io/pandocs/Interrupts.html
+            // Will be re-enabled by RETI
             IME = false;
+
+            // Clear HALT status since we're processing an interrupt
+            processor.isHalted = false;
 
             // Like the Call instruction
             var address = processor.registers.SP -= 2;
@@ -28,12 +33,12 @@ namespace axGB.CPU
             // Clear the appropriate interrupt flag
             unchecked
             {
-                processor.memory.IF &= (byte)~(requestFlag);
+                processor.memory.IF &= (byte)~requestFlag;
             }
         }
 
         /// <summary>
-        /// Process pending Interrupts.
+        ///     Process pending Interrupts.
         /// </summary>
         public void ProcessInterrupts()
         {
@@ -57,10 +62,10 @@ namespace axGB.CPU
             // Interrupt: X | X | X | Joypad | Serial | Timer | LCD | VBlank
 
             // Get interrupts are both enabled and signaled
-            byte pendingInterrupts = (byte)(processor.memory.IF & processor.memory.IE);
+            var pendingInterrupts = (byte)(processor.memory.IF & processor.memory.IE);
 
             // VBlank
-            if ((pendingInterrupts & 0b_00000001) > 0) 
+            if ((pendingInterrupts & 0b_00000001) > 0)
             {
                 JumpToInterruptVector(0x0040, 0b_00000001);
                 return;
@@ -90,7 +95,7 @@ namespace axGB.CPU
             // Joypad
             if ((pendingInterrupts & 0b_00010000) > 0)
             {
-                
+                JumpToInterruptVector(0x0060, 0b_00010000);
             }
         }
     }

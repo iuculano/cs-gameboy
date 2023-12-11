@@ -1,7 +1,6 @@
 using System;
 using System.IO;
 using System.Text;
-using System.Runtime.CompilerServices;
 
 namespace axGB.System
 {
@@ -54,7 +53,7 @@ namespace axGB.System
             switch (header.CartridgeType)
             {
                 case CartridgeType.RomOnly:
-                    return new CartridgeNoMBC()
+                    return new CartridgeNoMBC
                     {
                         rom    = buffer,
                         Header = header,
@@ -64,7 +63,7 @@ namespace axGB.System
                 case CartridgeType.MBC1:
                 case CartridgeType.MBC1Ram:
                 case CartridgeType.MBC1RamBattery:
-                    return new CartridgeMBC1()
+                    return new CartridgeMBC1
                     {
                         rom    = buffer,
                         Header = header,

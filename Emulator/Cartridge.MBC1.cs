@@ -1,5 +1,3 @@
-using System;
-
 namespace axGB.System
 {
     public sealed class CartridgeMBC1 : Cartridge

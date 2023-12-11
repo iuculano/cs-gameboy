@@ -1,14 +1,12 @@
-﻿using axGB.CPU;
-using System;
-
 namespace axGB.System
 {
     public class Timer
     {
-        private MemoryBus memory;
-        private int       divAccumulator;
-        private int       timaAccumulator;
-        private int[]     tacFrequencyTable = { 1024, 16, 64, 256 };
+        private readonly MemoryBus memory;
+        private readonly int[]     tacFrequencyTable = { 1024, 16, 64, 256 };
+
+        private int divAccumulator;
+        private int timaAccumulator;
 
         public Timer(MemoryBus memory)
         {
@@ -22,7 +20,7 @@ namespace axGB.System
 
             divAccumulator  += cycles;
             timaAccumulator += cycles;
-            
+
             // Update DIV - note that it always ticks
             // 4194304 cycles / 16384 = 256, Divider updates every 256 cycles
             if (divAccumulator >= 256)
@@ -46,14 +44,14 @@ namespace axGB.System
                     if (pendingValue > 0xFF)
                     {
                         memory.TIMA  = memory.TMA;
-                        memory.IF   |= 0b_00000100;
+                        memory.IF   |= 0b_00000100; // Request the timer interrupt
                     }
 
                     else
                     {
                         memory.TIMA++;
-                    }     
-                    
+                    }
+
                     timaAccumulator -= frequency;
                 }
             }

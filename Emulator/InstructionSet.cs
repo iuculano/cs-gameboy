@@ -1,7 +1,6 @@
 using System;
-using System.Diagnostics;
 using System.Collections.Generic;
-using axGB.CPU;
+using System.Diagnostics;
 
 namespace axGB.CPU
 {
