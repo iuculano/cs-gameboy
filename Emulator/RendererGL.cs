@@ -10,7 +10,6 @@ namespace axGB
         private readonly GL gl;
 
         private uint vertexFormat;
-        private uint vertexBuffer;
         private uint shaderProgram;
         private uint texture;
 
@@ -42,51 +41,39 @@ namespace axGB
             gl.DebugMessageCallback<nint>(proc, null);
 #endif
 
-            // Fullscreen quad
-            float[] vertices = new float[]
-            {
-                // Positions   Texture coords
-                -1.0f, -1.0f,  0.0f, 0.0f, // Bottom left
-                -1.0f,  1.0f,  0.0f, 1.0f, // Top left
-                 1.0f,  1.0f,  1.0f, 1.0f, // Top right
-                 1.0f, -1.0f,  1.0f, 0.0f, // Bottom right
-            };
-
-            // glNamedBufferData() handles the upload to the vertex buffer
-            vertexBuffer = gl.CreateBuffer();
-            gl.NamedBufferData<float>(vertexBuffer, (nuint)(sizeof(float) * vertices.Length), vertices, GLEnum.StaticDraw);
-
-            // Each vertex is 4 floats, 2 for position, 2 for texture coordinates
+            // Apparently this still needs to be bound even without a VBO
             vertexFormat = gl.CreateVertexArray();
-            gl.VertexArrayVertexBuffer(vertexFormat, 0, vertexBuffer, 0, 4 * sizeof(float));
-
-            gl.EnableVertexArrayAttrib(vertexFormat, 0);
-            gl.EnableVertexArrayAttrib(vertexFormat, 1);
-
-            gl.VertexArrayAttribFormat(vertexFormat, 0, 2, GLEnum.Float, false, 0);
-            gl.VertexArrayAttribFormat(vertexFormat, 1, 2, GLEnum.Float, false, 2 * sizeof(float));
-
-            gl.VertexArrayAttribBinding(vertexFormat, 0, 0);
-            gl.VertexArrayAttribBinding(vertexFormat, 1, 0);
+            gl.BindVertexArray(vertexFormat);
 
             // Texture
             texture = gl.CreateTexture(GLEnum.Texture2D);
             gl.TextureStorage2D(texture, 1, GLEnum.Rgb8, 160, 144);
             gl.TextureParameter(texture, TextureParameterName.TextureMinFilter, (int)TextureMinFilter.Nearest);
             gl.TextureParameter(texture, TextureParameterName.TextureMagFilter, (int)TextureMagFilter.Nearest);
+            gl.BindTextureUnit(0, texture);
 
             var vertexShaderSource = @"
-                # version 460 core
+                #version 420 core
 
-                layout(location = 0) in vec2 position;
-                layout(location = 1) in vec2 texCoord;
+                struct Vertex {
+                    vec2 position;
+                    vec2 uv;
+                };
 
-                out vec2 frag_texCoords;
+                const Vertex vertices[4] =
+                {
+                    { vec2(-1.0, -1.0), vec2(0.0, 0.0) }, // Bottom left
+                    { vec2(-1.0,  1.0), vec2(0.0, 1.0) }, // Top left
+                    { vec2( 1.0,  1.0), vec2(1.0, 1.0) }, // Top right
+                    { vec2( 1.0, -1.0), vec2(1.0, 0.0) }  // Bottom right
+                };
+
+                out vec2 frag_texCoords;  
 
                 void main()
                 {
-                    gl_Position    = vec4(position.x, position.y, 0.0, 1.0);
-                    frag_texCoords = texCoord;
+                    gl_Position    = vec4(vertices[gl_VertexID].position, 0.0, 1.0);
+                    frag_texCoords = vertices[gl_VertexID].uv;
                 }
             ";
 
@@ -102,7 +89,7 @@ namespace axGB
             }
 
             var pixelShaderSource = @"
-                # version 460 core
+                # version 420 core
 
                 uniform sampler2D textureSampler;
 
@@ -130,6 +117,7 @@ namespace axGB
             gl.AttachShader(shaderProgram, vertexShader);
             gl.AttachShader(shaderProgram, pixelShader);
             gl.LinkProgram(shaderProgram);
+            gl.UseProgram(shaderProgram);
 
             // Apparently we can just get rid of the shaders once the resultant program is linked?
             gl.DetachShader(shaderProgram, vertexShader);
@@ -142,15 +130,6 @@ namespace axGB
         {
             // Dumb hack - the Color class apparently is backwards, and this needs to be BGRA
             gl.TextureSubImage2D<uint>(texture, 0, 0, 0, 160, 144, GLEnum.Bgra, GLEnum.UnsignedByte, data);
-
-            // Technically there's no need to clear because we're guaranteed to write the whole screen
-            gl.Clear(ClearBufferMask.ColorBufferBit);
-            
-            // Actually all this can happen in init...
-            gl.BindVertexArray(vertexFormat);
-            gl.UseProgram(shaderProgram);
-            gl.BindTextureUnit(0, texture);
-
             gl.DrawArrays(GLEnum.TriangleFan, 0, 4);
         }
     }
