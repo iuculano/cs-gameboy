@@ -1,8 +1,10 @@
 ﻿using axGB.CPU;
 using axGB.System;
+using Silk.NET.GLFW;
 using Silk.NET.Input;
 using Silk.NET.Maths;
 using Silk.NET.Windowing;
+
 
 namespace axGB
 {
@@ -16,16 +18,22 @@ namespace axGB
         private static Processor         processor;
         private static GraphicsProcessor graphics;
         private static Timer             timer;
+        private static Joypad            joypad;
        
 
         private static void OnLoad()
         {
+            var input = window.CreateInput();
+            input.Keyboards[0].KeyDown += OnKeyDown;
+            input.Keyboards[0].KeyUp   += OnKeyUp;
+
             renderer = new RendererGL(window);
 
             memory    = new MemoryBus();
             processor = new Processor(memory);
-            timer     = new Timer(memory);
             graphics  = new GraphicsProcessor(memory);
+            timer     = new Timer(memory);
+            joypad    = new Joypad(memory);            
 
             var cartridge = Cartridge.Load(@"tetris.gb", memory);
             memory.Connect(cartridge);
@@ -52,19 +60,39 @@ namespace axGB
             }
         }
 
-        private static void KeyDown(IKeyboard arg1, Key arg2, int arg3)
+        private static JoypadButton ConvertKeyCodes(Key key)
         {
-            if (arg2 == Key.Escape)
+            switch (key)
             {
-                window.Close();
+                case Key.W:     return JoypadButton.Up;
+                case Key.A:     return JoypadButton.Left;
+                case Key.S:     return JoypadButton.Down;
+                case Key.D:     return JoypadButton.Right;
+                case Key.Left:  return JoypadButton.Select;
+                case Key.Up:    return JoypadButton.Start;
+                case Key.Right: return JoypadButton.A;
+                case Key.Down:  return JoypadButton.B;
+                default:        return JoypadButton.Unknown;
             }
+        }
+
+        private static void OnKeyDown(IKeyboard keyboard, Key key, int state)
+        {
+            var button = ConvertKeyCodes(key);
+            joypad.SetKeyDown(button);
+        }
+
+        private static void OnKeyUp(IKeyboard keyboard, Key key, int state)
+        {
+            var button = ConvertKeyCodes(key);
+            joypad.SetKeyUp(button);
         }
 
         static void Main(string[] args)
         {
             var options   = WindowOptions.Default;
             options.Size  = new Vector2D<int>(800, 720);
-            options.VSync = false;
+            options.VSync = true;
 
             // Window needs to be created before we can set up the renderer
             window         = Window.Create(options);
