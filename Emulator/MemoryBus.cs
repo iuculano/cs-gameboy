@@ -149,10 +149,6 @@ namespace axGB.System
                 case var addr when (address <= 0xFF7F):
                     switch (addr)
                     {
-                        // Joypad
-                        case 0xFF00:
-                            break;
-
                         // Serial - intercept this for debug purposes
                         case 0xFF02:
                         {
