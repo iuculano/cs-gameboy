@@ -51,6 +51,7 @@ namespace axGB
                 cycles = processor.Update();
                 timer.Update(cycles);
                 graphics.Update(cycles);
+                joypad.Update();
                 cyclesThisFrame += cycles;
 
                 if (graphics.IsReadyToRender)
