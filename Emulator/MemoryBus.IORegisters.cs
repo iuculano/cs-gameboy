@@ -55,8 +55,8 @@ namespace axGB.System
 
         public byte TAC
         {
-            get => MMIO[0x04];
-            set => MMIO[0x04] = value;
+            get => MMIO[0x07];
+            set => MMIO[0x07] = value;
         }
 
 
@@ -97,6 +97,12 @@ namespace axGB.System
             set => MMIO[0x45] = value;
         }
 
+        public byte BGP
+        {
+            get => MMIO[0x47];
+            set => MMIO[0x47] = value;
+        }
+
         public byte WY
         {
             get => MMIO[0x4A];
@@ -109,11 +115,6 @@ namespace axGB.System
             set => MMIO[0x4B] = value;
         }
 
-        public byte BGP
-        {
-            get => MMIO[0x4B];
-            set => MMIO[0x4B] = value;
-        }
 
 
         // Interupts
