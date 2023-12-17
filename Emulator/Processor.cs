@@ -26,10 +26,6 @@ namespace axGB.CPU
             registers        = new Registers();
             interruptHandler = new InterruptHandler(this);
             instructionSet   = new InstructionSet(this);
-
-            // Tetris seems to reset if it thinks all the buttons are held
-            // so this is here to fudge the system into thinking they're not
-            memory.JOYP = 0x0F;
         }
 
         /// <summary>
