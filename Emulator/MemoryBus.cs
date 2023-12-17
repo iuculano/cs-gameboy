@@ -43,6 +43,8 @@ namespace axGB.System
 
         public byte ReadByte(ushort address)
         {
+            // No idea why storing the byte first insead of just return seems
+            // to get slightly better code gen
             byte data;
             switch (address) 
             {

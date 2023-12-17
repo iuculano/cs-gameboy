@@ -70,6 +70,16 @@ namespace axGB.System
                         memory = memory
                     };
 
+                case CartridgeType.MBC3:
+                case CartridgeType.MBC3Ram:
+                case CartridgeType.MBC3RamBattery:
+                    return new CartridgeMBC3
+                    {
+                        rom    = buffer,
+                        Header = header,
+                        memory = memory
+                    };
+
                 default:
                     throw new Exception("Unknown cartridge type.");
             }
