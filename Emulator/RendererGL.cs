@@ -55,7 +55,8 @@ namespace axGB
             var vertexShaderSource = @"
                 #version 420 core
 
-                struct Vertex {
+                struct Vertex
+                {
                     vec2 position;
                     vec2 uv;
                 };
