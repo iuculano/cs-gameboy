@@ -1,5 +1,6 @@
 using System;
 using System.Drawing;
+using System.Runtime.CompilerServices;
 using axGB.System;
 
 namespace axGB.CPU
@@ -19,14 +20,14 @@ namespace axGB.CPU
 
         public enum LCDControl : byte
         {
-            LCDEnabled            = 0b_10000000,
-            WindowArea            = 0b_01000000,
-            WindowEnabled         = 0b_00100000,
-            BackgroundDataArea    = 0b_00010000,
-            BackgroundTileMapArea = 0b_00001000,
-            ObjectSize            = 0b_00000100,
-            ObjectEnabled         = 0b_00000010,
-            ObjectPriorityEnabled = 0b_00000001,
+            LCDEnabled             = 0b_10000000,
+            WindowArea             = 0b_01000000,
+            WindowEnabled          = 0b_00100000,
+            BackgroundDataArea     = 0b_00010000,
+            BackgroundTileMapArea  = 0b_00001000,
+            ObjectSize             = 0b_00000100,
+            ObjectEnabled          = 0b_00000010,
+            BackgroundWindowEnable = 0b_00000001,
         }
 
         private readonly MemoryBus memory;
@@ -107,7 +108,7 @@ namespace axGB.CPU
             var lcdc = (LCDControl)memory.LCDC;
             if (lcdc.HasFlag(LCDControl.BackgroundWindowEnable))
             {
-            // Memory locations can differ depending how the register is set
+                // Memory locations can differ depending how the register is set
                 var tileDataOffset = lcdc.HasFlag(LCDControl.BackgroundDataArea)    ? 0x0000 : 0x0800;
                 var tileMapOffset  = lcdc.HasFlag(LCDControl.BackgroundTileMapArea) ? 0x1C00 : 0x1800;
                 var window         = lcdc.HasFlag(LCDControl.WindowEnabled)         ? 0x0000 : 0x0000;
@@ -133,7 +134,7 @@ namespace axGB.CPU
                     // https://gbdev.io/pandocs/Tile_Data.html#vram-tile-data
                     byte id = 0;
                     if (tileDataOffset == 0)
-            {
+                    {
                         id  = memory.VRAM[index];
                     }
 
@@ -197,99 +198,90 @@ namespace axGB.CPU
             bool lcdEnabled = (memory.LCDC & 0b_10000000) > 0;
             if (lcdEnabled)
             {
-                //this.cycles = 0;
-                //memory.LY   = 0;
-                //memory.STAT = 0b_00000000;
-
-                return this.cycles;
-            }*/
-
-            this.cycles += cycles;
-
-            // https://gbdev.io/pandocs/STAT.html
-            var mode = (Mode)(memory.STAT & 0b_00000011);
-            switch (mode)
-            {
-                case Mode.HBlank:
-                    if (this.cycles >= 204)
-                    {
-                        // We've written an entire scanline
-                        memory.LY++;
-
-                        // 144 - 153 are v-blank
-                        if (memory.LY >= 144)
+                // https://gbdev.io/pandocs/STAT.html
+                var mode = (Mode)(memory.STAT & 0b_00000011);
+                switch (mode)
+                {
+                    case Mode.HBlank:
+                        if (this.cycles >= 204)
                         {
-                            // Don't directly render here, rather signal that we're ready to render
-                            IsReadyToRender = true;
+                            // We've written an entire scanline
+                            memory.LY++;
+
+                            // 144 - 153 are v-blank
+                            if (memory.LY >= 144)
+                            {
+                                // Don't directly render here, rather signal that we're ready to render
+                                IsReadyToRender = true;
 
                                 memory.STAT  = (int)Mode.VBlank;
                                 memory.IF   |= 0b_00000001;
-                        }
+                            }
 
-                        else
-                        {
-                            // http://imrannazar.com/GameBoy-Emulation-in-JavaScript:-GPU-Timings ???
-                            memory.STAT = (int)Mode.OAM; // OAM
+                            else
+                            {
+                                // http://imrannazar.com/GameBoy-Emulation-in-JavaScript:-GPU-Timings ???
+                                memory.STAT = (int)Mode.OAM; // OAM
 
                                 // Depending on STAT, request and LCD interrupt
                                 if ((memory.STAT & 0b_00001000) > 0)
                                 {
                                     memory.IF |= 0b_00000010;
                                 }
+                            }
+
+                            this.cycles -= 204;
                         }
 
-                        this.cycles -= 204;
-                    }
+                        break;
 
-                    break;
-
-                case Mode.VBlank:
-                    if (this.cycles >= 456)
-                    {
-                        memory.LY++;
-
-                        if (memory.LY >= 154)
+                    case Mode.VBlank:
+                        if (this.cycles >= 456)
                         {
-                            // I think blow away LY and jump to OAM?
-                            memory.LY   = 0;
-                            memory.STAT = (int)Mode.OAM;
+                            memory.LY++;
+
+                            if (memory.LY >= 154)
+                            {
+                                // I think blow away LY and jump to OAM?
+                                memory.LY   = 0;
+                                memory.STAT = (int)Mode.OAM;
 
                                 if ((memory.STAT & 0b_00010000) > 0)
                                 {
                                     memory.IF |= 0b_00000010;
                                 }
+                            }
+
+                            this.cycles -= 456;
                         }
 
-                        this.cycles -= 456;
-                    }
+                        break;
 
-                    break;
-
-                case Mode.OAM:
-                    if (this.cycles >= 80)
-                    {
-                        memory.STAT  = (int)Mode.Transfer;
-                        this.cycles -= 80;
+                    case Mode.OAM:
+                        if (this.cycles >= 80)
+                        {
+                            memory.STAT  = (int)Mode.Transfer;
+                            this.cycles -= 80;
 
                             if ((memory.STAT & 0b_00100000) > 0)
                             {
                                 memory.IF |= 0b_00000010;
                             }
-                    }
+                        }
 
-                    break;
+                        break;
 
-                case Mode.Transfer:
-                    if (this.cycles >= 172)
-                    {
+                    case Mode.Transfer:
+                        if (this.cycles >= 172)
+                        {
                             WalkScanline(memory.LY);
 
-                        memory.STAT  = (int)Mode.HBlank;
-                        this.cycles -= 172;
-                    }
+                            memory.STAT  = (int)Mode.HBlank;
+                            this.cycles -= 172;
+                        }
 
-                    break;
-            }
+                        break;
+                }
 
                 // I think this is OK to check here because this will update every
                 // CPU step?
