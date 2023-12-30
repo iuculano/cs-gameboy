@@ -169,18 +169,6 @@ namespace axGB.System
                             DIV = 0; // Writes to this register set it to 0
                             break;
 
-                        // Don't know if this is correct to check this here, because writes
-                        // may trigger this on the write that would line them up, rather than
-                        // it lingering for a round
-                        // case 0xFF45:
-                        // {
-                        //     if (LYC == LY)
-                        //     {
-                        //         // https://gbdev.io/pandocs/STAT.html#ff41--stat-lcd-status
-                        //     }
-                        //     break;
-                        // }
-
                         default:
                             // Pass through
                             MMIO[addr - 0xFF00] = value;
