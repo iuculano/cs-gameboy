@@ -35,6 +35,7 @@ namespace axGB.CPU
 
         // Translated framebuffer
         public uint[] Backbuffer      { get; private set; } = new uint[ScreenWidth * ScreenHeight];
+        public uint[] Background      { get; private set; } = new uint[256 * 256];
         public bool   IsReadyToRender { get; private set; }
 
         public void DrawSpriteScanLine()
@@ -191,10 +192,10 @@ namespace axGB.CPU
         public void Update(int cycles)
         {
             IsReadyToRender = false;
+            this.cycles    += cycles;
 
-            // https://www.reddit.com/r/Gameboy/comments/a1c8h0/what_happens_when_a_gameboy_screen_is_disabled/
-            /*var what = memory.LCDC & 0b_10000000;
-            if (what == 0)
+            bool lcdEnabled = (memory.LCDC & 0b_10000000) > 0;
+            if (lcdEnabled)
             {
                 //this.cycles = 0;
                 //memory.LY   = 0;
@@ -221,18 +222,20 @@ namespace axGB.CPU
                             // Don't directly render here, rather signal that we're ready to render
                             IsReadyToRender = true;
 
-                            if ((memory.IE & 0b_00000001) > 0)
-                            {
-                                memory.IF |= 0b_00000001;
-                            }
-
-                            memory.STAT = (int)Mode.VBlank;
+                                memory.STAT  = (int)Mode.VBlank;
+                                memory.IF   |= 0b_00000001;
                         }
 
                         else
                         {
                             // http://imrannazar.com/GameBoy-Emulation-in-JavaScript:-GPU-Timings ???
                             memory.STAT = (int)Mode.OAM; // OAM
+
+                                // Depending on STAT, request and LCD interrupt
+                                if ((memory.STAT & 0b_00001000) > 0)
+                                {
+                                    memory.IF |= 0b_00000010;
+                                }
                         }
 
                         this.cycles -= 204;
@@ -250,6 +253,11 @@ namespace axGB.CPU
                             // I think blow away LY and jump to OAM?
                             memory.LY   = 0;
                             memory.STAT = (int)Mode.OAM;
+
+                                if ((memory.STAT & 0b_00010000) > 0)
+                                {
+                                    memory.IF |= 0b_00000010;
+                                }
                         }
 
                         this.cycles -= 456;
@@ -262,6 +270,11 @@ namespace axGB.CPU
                     {
                         memory.STAT  = (int)Mode.Transfer;
                         this.cycles -= 80;
+
+                            if ((memory.STAT & 0b_00100000) > 0)
+                            {
+                                memory.IF |= 0b_00000010;
+                            }
                     }
 
                     break;
@@ -276,6 +289,25 @@ namespace axGB.CPU
                     }
 
                     break;
+            }
+
+                // I think this is OK to check here because this will update every
+                // CPU step?
+                // https://forums.nesdev.org/viewtopic.php?t=16434
+                if (memory.LYC == memory.LY)
+                {
+                    // https://gbdev.io/pandocs/STAT.html#ff45--lyc-ly-compare
+                    memory.STAT |= 0b_00000100;
+                    memory.IF   |= 0b_00000010;
+                }
+            }
+
+            else
+            {
+                // https://www.reddit.com/r/Gameboy/comments/a1c8h0/what_happens_when_a_gameboy_screen_is_disabled/
+                memory.LY   = 0;
+                memory.STAT = (byte)Mode.HBlank;
+                this.cycles = 0;
             }
         }
     }
