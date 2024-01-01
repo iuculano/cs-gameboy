@@ -35,9 +35,19 @@ namespace axGB.System
                     data = rom[addr - 0x4000 + (0x4000 * romBankNumber)];
                     break;
 
-                case var addr when (address >= 0xA000 && address <= 0xBFFF):
+                case var addr when (address <= 0xBFFF):
+                    if (ramEnable)
+                    {
                     data = ram[(addr - 0xA000) + (0x2000 * ramBankNumber)];
                     break;
+            }
+
+                    else
+                    {
+                        //What gets returned if RAM is not enabled?
+                        data = 0xFF;
+                        break;
+                    }
             }
 
             return data;
