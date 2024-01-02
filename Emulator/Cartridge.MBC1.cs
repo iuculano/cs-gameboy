@@ -3,10 +3,10 @@ namespace axGB.System
     public sealed class CartridgeMBC1 : Cartridge
     {
         // https://gbdev.io/pandocs/MBC1.html
-        private byte ramEnable;     // 4 bits
-        private byte romBankNumber = 1; // 5 bits
-        private byte ramBankNumber; // 2 bits
-        private byte bankingMode;   // 1 bit
+        private bool ramEnable;
+        private byte romBankNumber = 1;
+        private byte ramBankNumber;
+        private byte bankingMode;
 
         private byte[] ram;
 
@@ -17,30 +17,23 @@ namespace axGB.System
 
         public override byte ReadByte(ushort address)
         {
-            // I think that ROM is stored in a physically linear way in the rom itself
-            // and that the banking mechanism is really just used to map different parts
-            // into the same address space
-
-            // This seems like it really just boils down to an offset if I'm understanding
-            // this right
-
             byte data = 0;
             switch (address)
             {
-                case var addr when (address >= 0x0000 && address <= 0x3FFF):
+                case var addr when (address <= 0x3FFF):
                     data = rom[addr];
                     break;
 
-                case var addr when (address >= 0x4000 && address <= 0x7FFF):
-                    data = rom[addr - 0x4000 + (0x4000 * romBankNumber)];
+                case var addr when (address <= 0x7FFF):
+                    data = rom[(addr - 0x4000) + (0x4000 * romBankNumber)];
                     break;
 
                 case var addr when (address <= 0xBFFF):
                     if (ramEnable)
                     {
-                    data = ram[(addr - 0xA000) + (0x2000 * ramBankNumber)];
-                    break;
-            }
+                        data = ram[(addr - 0xA000) + (0x2000 * ramBankNumber)];
+                        break;
+                    }
 
                     else
                     {
@@ -60,25 +53,46 @@ namespace axGB.System
             byte data;
             switch (address)
             {
-                case var addr when (address >= 0x0000 && address <= 0x1FFF):
-                    data = (byte)(value & 0b_00001111);
-                    if (data == 0x0A)
-                    {
-                        ramEnable = data;
-                    }
+                case var addr when (address <= 0x1FFF):
+                    data      = (byte)(value & 0b_00001111);
+                    ramEnable = (data == 0x0A) ? true : false;
+                    break;
+
+                case var addr when (address <= 0x3FFF):
+                    data = (byte)(value & 0b_00011111);
                     
+                    // Not sure if this is a particuarlly good solution, but it seems like
+                    // I can just carve out a bit of a special case and increment these
+                    // invalid cases
+                    if (data == 0x00 || data == 0x20 || data ==  0x40 || data == 0x60)
+                    {
+                        data += 1;
+                    }
+
+                    romBankNumber = data;
                     break;
 
-                case var addr when (address >= 0x2000 && address <= 0x3FFF):
-                    data          = (byte)(value & 0b_00011111);
-                    romBankNumber = (byte)(data == 0 ? 1 : data);
+                case var addr when (address <= 0x5FFF):
+                    if (bankingMode == 0)
+                    {
+                        // Really not sure if this is correct
+                        data = (byte)(value & 0b_00011111);
+                        if (data == 0x00 || data == 0x20 || data == 0x40 || data == 0x60)
+                        {
+                            data += 1;
+                        }
+
+                        romBankNumber = data;
+                    }
+
+                    else
+                    {
+                        ramBankNumber = (byte)(value & 0b_00000011);
+                    }
                     break;
 
-                case var addr when (address >= 0x4000 && address < 0x5FFF):
-                    ramBankNumber = (byte)(value & 0b_00000011);
-                    break;
-
-                case var addr when (address >= 0x6000 && address < 0x7FFF):
+                case var addr when (address <= 0x7FFF):
+                    // Either 0 or 1
                     bankingMode = (byte)(value & 0b_00000001);
                     break;
             }
