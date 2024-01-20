@@ -2,6 +2,7 @@ using System;
 using System.Drawing;
 using System.Runtime.CompilerServices;
 using Emulator.Core.Bus;
+using Enulator.Core.Bus;
 
 namespace Enulator.Core.PPU
 {
@@ -30,13 +31,15 @@ namespace Enulator.Core.PPU
             BackgroundWindowEnable = 0b_00000001,
         }
 
-        private readonly MemoryBus memory;
+        private readonly MemoryBus        memory;
+        private readonly InterruptHandler interruptHandler;
+
         private readonly uint[] palette;
         private int cycles;
 
         // Translated framebuffer
-        public uint[] Backbuffer { get; private set; } = new uint[ScreenWidth * ScreenHeight];
-        public uint[] Background { get; private set; } = new uint[256 * 256];
+        public uint[] Backbuffer    { get; private set; } = new uint[ScreenWidth * ScreenHeight];
+        public uint[] Background    { get; private set; } = new uint[256 * 256];
         public bool IsReadyToRender { get; private set; }
 
         public void DrawSpriteScanLine()
@@ -65,8 +68,8 @@ namespace Enulator.Core.PPU
 
                 // 2 bits per pixel, 0b_000000HL
                 // Shift into position depending on which bit we're on
-                var low  = (one & bit) > 0 ? 0b_00000001 : 0; // 0b_0000000L
-                var high = (two & bit) > 0 ? 0b_00000010 : 0; // 0b_000000H0
+                var low   = (one & bit) > 0 ? 0b_00000001 : 0; // 0b_0000000L
+                var high  = (two & bit) > 0 ? 0b_00000010 : 0; // 0b_000000H0
                 var color = high | low;                        // 0b_000000HL
 
                 // Need to map to where in the framebuffer we're writing
@@ -89,8 +92,8 @@ namespace Enulator.Core.PPU
             // 1 * 2 = 2 - byte 2 and 3 comprise a row
             // 2 * 2 = 4 - byte 4 and 5 comprise a row...
             var rowIndex = scanline * 2;       // This saves an instruction somehow
-            var one = data[rowIndex];     // byte 1
-            var two = data[rowIndex + 1]; // byte 2
+            var one      = data[rowIndex];     // byte 1
+            var two      = data[rowIndex + 1]; // byte 2
 
             // Mask to grab just the current bit handling
             var bit = 0b_10000000 >> column;
@@ -173,9 +176,11 @@ namespace Enulator.Core.PPU
             }
         }
 
-        public GraphicsProcessor(MemoryBus memory)
+        public GraphicsProcessor(MemoryBus memory, InterruptHandler interruptHandler)
         {
-            this.memory = memory;
+            this.memory           = memory;
+            this.interruptHandler = interruptHandler;
+
             palette = new uint[4]
             {
                 (uint)Color.FromArgb(0x9B, 0xBC, 0x0F).ToArgb(),
@@ -219,7 +224,7 @@ namespace Enulator.Core.PPU
                                 IsReadyToRender = true;
 
                                 memory.STAT = (int)LCDMode.VBlank;
-                                memory.IF  |= 0b_00000001;
+                                interruptHandler.Request(InterruptType.VBlank);
                             }
 
                             else
@@ -228,9 +233,9 @@ namespace Enulator.Core.PPU
                                 memory.STAT = (int)LCDMode.OAM; // OAM
 
                                 // Depending on STAT, request and LCD interrupt
-                                if ((memory.STAT & 0b_00001000) > 0)
+                                if ((memory.STAT & 0b_00001000) == 0b_00001000)
                                 {
-                                    memory.IF |= 0b_00000010;
+                                    interruptHandler.Request(InterruptType.LCD);
                                 }
                             }
 
@@ -250,9 +255,9 @@ namespace Enulator.Core.PPU
                                 memory.LY   = 0;
                                 memory.STAT = (int)LCDMode.OAM;
 
-                                if ((memory.STAT & 0b_00010000) > 0)
+                                if ((memory.STAT & 0b_00010000) == 0b_00010000)
                                 {
-                                    memory.IF |= 0b_00000010;
+                                    interruptHandler.Request(InterruptType.LCD);
                                 }
                             }
 
@@ -267,9 +272,9 @@ namespace Enulator.Core.PPU
                             memory.STAT  = (int)LCDMode.Transfer;
                             this.cycles -= 80;
 
-                            if ((memory.STAT & 0b_00100000) > 0)
+                            if ((memory.STAT & 0b_00100000) == 0b_00100000)
                             {
-                                memory.IF |= 0b_00000010;
+                                interruptHandler.Request(InterruptType.LCD);
                             }
                         }
 
@@ -294,7 +299,7 @@ namespace Enulator.Core.PPU
                 {
                     // https://gbdev.io/pandocs/STAT.html#ff45--lyc-ly-compare
                     memory.STAT |= 0b_00000100;
-                    memory.IF   |= 0b_00000010;
+                    interruptHandler.Request(InterruptType.LCD);
                 }
             }
 
