@@ -1,6 +1,6 @@
 ﻿using System;
 
-namespace Emulator.Core.CPU;
+namespace Emulator.Core.Bus;
 
 [Flags]
 public enum InterruptType : byte
