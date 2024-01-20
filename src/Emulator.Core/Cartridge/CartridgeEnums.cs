@@ -2,6 +2,7 @@ namespace Enulator.Core.Cartridge;
 
 // Pretty much all of this came from here:
 // https://gbdev.gg8.se/wiki/articles/The_Cartridge_Header
+
 public enum ROMSize
 {
     // This reads dumb, but can't start with a number :|
@@ -60,7 +61,6 @@ public enum DestinationCode
     NonJapanese = 0x01
 }
 
-// https://gbdev.io/pandocs/The_Cartridge_Header.html
 public struct CartridgeHeader
 {
     public byte[]          NintendoLogo     { get; init; }

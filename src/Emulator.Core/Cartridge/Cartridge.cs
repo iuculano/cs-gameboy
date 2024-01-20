@@ -7,16 +7,13 @@ namespace Enulator.Core.Cartridge;
 
 public abstract class Cartridge
 {
-    // Not sure I like how I handle this - ROM here is really just temporary storage
-    // It's really copied over to the memory that the system bus owns, and the
-    // Read/Write functions below interact with that
+    public    CartridgeHeader Header { get; init; }
     protected byte[]          rom    { get; init; }
     protected MemoryBus       memory { get; init; }
-    public    CartridgeHeader Header { get; init; }
-
 
     public static Cartridge Load(string filename, MemoryBus memory)
     {
+        // https://gbdev.io/pandocs/The_Cartridge_Header.html
         var buffer = File.ReadAllBytes(filename);
         var header = new CartridgeHeader
         {
