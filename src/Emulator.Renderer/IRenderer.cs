@@ -19,6 +19,6 @@ public interface IRenderer
     /// <summary>
     /// Renders a frame.
     /// </summary>
-    /// <param name="data">32-bit pixel data.</param>
+    /// <param name="data">32-bit pixel data to draw to screen.</param>
     void Render(ReadOnlySpan<uint> data);
 }

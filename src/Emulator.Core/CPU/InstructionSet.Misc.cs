@@ -20,13 +20,13 @@ public partial class InstructionSet
 
     private void Ei()
     {
-        processor.interruptHandler.IME          = true;
-        processor.interruptHandler.NeedsEIDelay = true;
+        processor.IME          = true;
+        processor.NeedsEIDelay = true;
     }
 
     private void Di()
     {
-        processor.interruptHandler.IME = false;
+        processor.IME = false;
     }
 
     private void Halt()

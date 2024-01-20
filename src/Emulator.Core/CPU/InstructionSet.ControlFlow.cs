@@ -30,8 +30,8 @@ public partial class InstructionSet
 
     private void Reti()
     {
-        processor.interruptHandler.IME = true;
-        processor.registers.PC         = Pop();
+        processor.IME          = true;
+        processor.registers.PC = Pop();
     }
 
     private void Jump(ushort value)

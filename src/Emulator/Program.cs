@@ -9,6 +9,7 @@ using Silk.NET.Maths;
 using Silk.NET.Windowing;
 using Emulator.Core.Bus;
 using Emulator.Core.Input;
+using Enulator.Core.Bus;
 
 
 namespace Emulator;
@@ -20,6 +21,7 @@ class Program
     private static double    accumulator;
 
     private static MemoryBus         memory;
+    private static InterruptHandler  interruptHandler;
     private static Processor         processor;
     private static GraphicsProcessor graphics;
     private static Timer             timer;
@@ -34,11 +36,14 @@ class Program
 
         renderer = new RendererGL(window);
 
-        memory    = new MemoryBus();
-        processor = new Processor(memory);
-        graphics  = new GraphicsProcessor(memory);
-        timer     = new Timer(memory);
-        joypad    = new Joypad(memory);            
+        memory           = new MemoryBus();
+        interruptHandler = new InterruptHandler(memory);
+
+        
+        processor = new Processor(memory, interruptHandler);
+        graphics  = new GraphicsProcessor(memory, interruptHandler);
+        timer     = new Timer(memory, interruptHandler);
+        joypad    = new Joypad(memory, interruptHandler);            
 
         var cartridge = Cartridge.Load(@"03-op sp,hl.gb", memory);
         memory.Connect(cartridge);
