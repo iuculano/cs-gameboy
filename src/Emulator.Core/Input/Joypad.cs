@@ -1,10 +1,12 @@
 using Emulator.Core.Input;
+using Enulator.Core.Bus;
 
 namespace Emulator.Core.Bus;
 
 public class Joypad
 {
-    private readonly MemoryBus memory;
+    private readonly MemoryBus        memory;
+    private readonly InterruptHandler interruptHandler;
 
     // https://gbdev.io/pandocs/Joypad_Input.html
     // Masks for reading specific bits out of the JOYP register.
@@ -12,17 +14,16 @@ public class Joypad
     private const byte SelectorBitmask = 0b_00110000; // Bits 4-5 determine whether we can read that state.
     private const byte UnusedBitmask   = 0b_11000000; // Bits 6-7 are unused, always 1.
 
-
-    // These represent the key state of the JOYP register, the lower nibble
+    // These represent the key state of the JOYP register.
     // These are buffered and the joystick state is only truly updated in the
     // Update() function. Note that a button press is 0, not 1.
     private byte pendingDirection = InputBitmask;
     private byte pendingButton    = InputBitmask;
 
-
-    public Joypad(MemoryBus memory)
+     public Joypad(MemoryBus memory, InterruptHandler interruptHandler)
     {
-        this.memory = memory;
+        this.memory           = memory;
+        this.interruptHandler = interruptHandler;
     }
 
     private byte GetButtonMask(JoypadButton button)
@@ -95,9 +96,10 @@ public class Joypad
     {
         // Keep the selector - keeping the JOYP register in the same state but
         // splicing in the appropriate input depending on which is selected.
-        // If neither is selected, then we treat all keys as unset.
         byte selector = (byte)(memory.JOYP & SelectorBitmask);
-        if (selector == 0b_00110000)
+
+        // If neither is selected, then we treat all keys as unset.
+        if (selector == SelectorBitmask)
         {
             // Remember, the input bits being 1 means it's not pressed
             memory.JOYP = 0xFF;
@@ -116,7 +118,7 @@ public class Joypad
             // If any bit is unset, something's pressed and we can request and interrupt
             if (pendingDirection != InputBitmask)
             {
-                memory.IF |= 0b_00010000;
+                interruptHandler.Request(InterruptType.Joypad);
             }
         }
 
@@ -126,7 +128,7 @@ public class Joypad
 
             if (pendingButton != InputBitmask)
             {
-                memory.IF |= 0b_00010000;
+                interruptHandler.Request(InterruptType.Joypad);
             }
         }
     }
