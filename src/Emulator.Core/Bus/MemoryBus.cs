@@ -8,7 +8,7 @@ namespace Emulator.Core.Bus;
 public partial class MemoryBus
 {
     // The basic memory map
-    // ROM0, ROM0, and ERAM live on the catridge
+    // ROM0, ROM1, and ERAM live on the catridge
     // https://gbdev.io/pandocs/Memory_Map.html
     public byte[] Bootstrap { get; init; }
     public byte[] VRAM      { get; init; }
@@ -117,12 +117,8 @@ public partial class MemoryBus
     {
         switch (address) 
         {
-            case var addr when (address <= 0x3FFF):
-                cartridge.WriteByte(addr, value); // Illegal, but handled by the cartridge
-                break;
-
             case var addr when (address <= 0x7FFF):
-                cartridge.WriteByte(addr, value); // Illegal, but handled by the cartridge
+                cartridge.WriteByte(addr, value);
                 break;
 
             case var addr when (address <= 0x9FFF):

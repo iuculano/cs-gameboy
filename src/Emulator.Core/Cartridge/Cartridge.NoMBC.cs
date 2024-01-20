@@ -16,6 +16,16 @@ public sealed class CartridgeNoMBC : Cartridge
 
     public override void WriteByte(ushort address, byte value)
     {
-        Console.WriteLine("Illegal memory write.");
+        switch (address)
+        {
+            // RAM Enable register
+            case var addr when (address <= 0x3FFF):
+                Console.WriteLine($"ROM0: Illegal write to ${addr.ToString("X4")}");
+                break;
+
+            case var addr when (address <= 0x7FFF):
+                Console.WriteLine($"ROM1: Illegal write to ${addr.ToString("X4")}");
+                break;
+        }
     }
 }
