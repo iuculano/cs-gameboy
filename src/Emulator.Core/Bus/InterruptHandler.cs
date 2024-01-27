@@ -7,14 +7,19 @@ public class InterruptHandler
 {
     private readonly MemoryBus memory;
 
-    public InterruptType PendingInterrupts
-    { 
-        get => (InterruptType)(memory.IE & memory.IF);
-    }
-
     public InterruptHandler(MemoryBus memory)
     {
         this.memory = memory;
+    }
+
+    public InterruptType PendingInterrupts
+    {
+        get => (InterruptType)(memory.IE & memory.IF);
+    }
+
+    public bool IsServiceable(InterruptType interruptType)
+    {
+        return PendingInterrupts.HasFlag(interruptType);
     }
 
     public void Request(InterruptType type)

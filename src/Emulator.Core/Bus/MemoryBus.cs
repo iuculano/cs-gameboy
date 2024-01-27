@@ -150,7 +150,8 @@ public partial class MemoryBus
                     // Serial - intercept this for debug purposes
                     case 0xFF02:
                     {
-                        // Deviation from this value seems to be a sign the transfer is complete
+                        // Deviation from this value seems to be a sign the
+                        // transfer is complete
                         if (value == 0b_10000001)
                         {
                             var text = Encoding.ASCII.GetString(new[] { SB });

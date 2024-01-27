@@ -11,14 +11,12 @@ public partial class MemoryBus
         set => MMIO[0x50] = value;
     }
 
-
     // Controller
     public byte JOYP
     {
         get => MMIO[0x00];
         set => MMIO[0x00] = value;
     }
-
 
     // Serial bus
     public byte SB
@@ -32,7 +30,6 @@ public partial class MemoryBus
         get => MMIO[0x02];
         set => MMIO[0x02] = value;
     }
-
 
     // Timer and Divider
     public byte DIV
@@ -114,8 +111,6 @@ public partial class MemoryBus
         get => MMIO[0x4B];
         set => MMIO[0x4B] = value;
     }
-
-
 
     // Interupts
     public byte IE
