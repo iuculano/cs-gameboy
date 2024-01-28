@@ -24,7 +24,7 @@ public class InterruptHandler
 
     public void Request(InterruptType type)
     {
-        memory.IF |= (byte)~type;
+        memory.IF |= (byte)type;
     }
 
     public void Clear(InterruptType type)
