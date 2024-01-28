@@ -164,17 +164,49 @@ namespace Enulator.Core.PPU
             get => (memory.LCDC & 0b_10000000) == 0b_10000000;
         }
 
-        private LCDStatusMode Mode
-        {
-            get => (LCDStatusMode)(memory.STAT & 0b_00000011);
-            set => memory.STAT = (byte)((byte)value & 0b_00000011);
-        }
-
         private LCDStatusInterrupt InterruptSelect
         {
             get => (LCDStatusInterrupt)(memory.STAT & 0b_01111000);
-            set => memory.STAT = (byte)((byte)value & 0b_01111000);
+            set
+            {
+                var otherBits = memory.STAT & 0b_00000111;
+                memory.STAT   = (byte)(otherBits | (0b_10000000 | (int)value));
+            }
         }
+
+        private LCDStatusMode Mode
+        {
+            get => (LCDStatusMode)(memory.STAT & 0b_00000011);
+            set
+            {
+                // https://gbdev.io/pandocs/STAT.html#ff41--stat-lcd-status
+                // Seems like bit 7 is always set on STAT
+                var otherBits = memory.STAT & 0b_01111100;
+                memory.STAT   = (byte)(otherBits | (0b_10000000 | (int)value));
+
+                // Mode 0
+                if (value == LCDStatusMode.HBlank && InterruptSelect.HasFlag(LCDStatusInterrupt.HBlank))
+                {
+                    interruptHandler.Request(InterruptType.LCD);
+                    return;
+                }
+
+                // Mode 1
+                if (value == LCDStatusMode.VBlank && InterruptSelect.HasFlag(LCDStatusInterrupt.VBlank))
+                {
+                    interruptHandler.Request(InterruptType.LCD);
+                    return;
+                }
+
+                // Mode 2
+                if (value == LCDStatusMode.OAM && InterruptSelect.HasFlag(LCDStatusInterrupt.OAM))
+                {
+                    interruptHandler.Request(InterruptType.LCD);
+                    return;
+                }
+            }
+        }
+
 
         public void Update(int cycles)
         {
@@ -209,12 +241,6 @@ namespace Enulator.Core.PPU
                             {
                                 // http://imrannazar.com/GameBoy-Emulation-in-JavaScript:-GPU-Timings ???
                                 Mode = LCDStatusMode.OAM;
-
-                                // Depending on STAT, request and LCD interrupt
-                                if (InterruptSelect.HasFlag(LCDStatusInterrupt.HBlank))
-                                {
-                                    interruptHandler.Request(InterruptType.LCD);
-                                }
                             }
 
                             this.cycles -= HBlankCycles;
@@ -230,14 +256,9 @@ namespace Enulator.Core.PPU
                             if (memory.LY >= 154)
                             {
                                 // I think blow away LY and jump to OAM?
-
-                                memory.LY   = 0;
-                                memory.STAT = (int)LCDStatusMode.OAM;
-
-                                if ((memory.STAT & 0b_00010000) == 0b_00010000)
-                                {
-                                    interruptHandler.Request(InterruptType.LCD);
-                                }
+                                Mode      = LCDStatusMode.OAM;
+                                memory.LY = 0;
+                                
                             }
 
                             this.cycles -= VBlankCycles;
@@ -250,11 +271,6 @@ namespace Enulator.Core.PPU
                         {
                             Mode         = LCDStatusMode.Transfer;
                             this.cycles -= OAMCycles;
-
-                            if ((memory.STAT & 0b_00100000) == 0b_00100000)
-                            {
-                                interruptHandler.Request(InterruptType.LCD);
-                            }
                         }
 
                         break;
@@ -277,7 +293,7 @@ namespace Enulator.Core.PPU
                 if (memory.LYC == memory.LY)
                 {
                     // https://gbdev.io/pandocs/STAT.html#ff45--lyc-ly-compare
-                    memory.STAT |= 0b_00000100;
+                    InterruptSelect = LCDStatusInterrupt.LYC;
                     interruptHandler.Request(InterruptType.LCD);
                 }
             }
