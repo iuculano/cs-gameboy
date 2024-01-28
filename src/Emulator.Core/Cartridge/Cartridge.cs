@@ -61,7 +61,7 @@ public abstract class Cartridge
                 };
 
             default:
-                throw new Exception("Unknown cartridge type.");
+                throw new Exception("Unknown or unsupported cartridge type.");
         }
     }
 

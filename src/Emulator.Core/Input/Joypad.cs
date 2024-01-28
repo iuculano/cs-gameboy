@@ -5,14 +5,15 @@ namespace Emulator.Core.Bus;
 
 public class Joypad
 {
-    private readonly MemoryBus        memory;
-    private readonly InterruptHandler interruptHandler;
-
     // https://gbdev.io/pandocs/Joypad_Input.html
+
     // Masks for reading specific bits out of the JOYP register.
     private const byte InputBitmask    = 0b_00001111; // Bits 3-0 are the button/d-pad input state - whether it's pressed or not.
     private const byte SelectorBitmask = 0b_00110000; // Bits 4-5 determine whether we can read that state.
     private const byte UnusedBitmask   = 0b_11000000; // Bits 6-7 are unused, always 1.
+
+    private readonly MemoryBus        memory;
+    private readonly InterruptHandler interruptHandler;
 
     // These represent the key state of the JOYP register.
     // These are buffered and the joystick state is only truly updated in the
@@ -112,10 +113,10 @@ public class Joypad
 
         if (isDirectionSelected)
         {
-            // Force the unused bits to 1, keep the same selector, set our input bits
+            // Force unused bits to 1, keep the same selector, set input bits
             memory.JOYP |= (byte)(UnusedBitmask | selector | pendingDirection);
 
-            // If any bit is unset, something's pressed and we can request and interrupt
+            // If any bit is 0, something's pressed
             if (pendingDirection != InputBitmask)
             {
                 interruptHandler.Request(InterruptType.Joypad);
