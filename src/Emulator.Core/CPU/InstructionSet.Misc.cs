@@ -43,12 +43,10 @@ public partial class InstructionSet
             {
                 // Halt bug
                 processor.registers.PC -= 1;
+                return;
             }
 
-            else
-            {
-                processor.isHalted = true;
-            }
+            processor.isHalted = true;
         }
     }
 }

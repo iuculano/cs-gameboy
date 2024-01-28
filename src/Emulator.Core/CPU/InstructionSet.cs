@@ -66,7 +66,7 @@ public partial class InstructionSet
             new Instruction("DEC H",                   0, 4,  OP_0x25),     // 0x25
             new Instruction("LD H, ${0:x2}",           1, 8,  OP_0x26),     // 0x26
             new Instruction("DAA",                     0, 4,  OP_0x27),     // 0x27
-            new Instruction("JR Z, ${0:x2}",           1, 12, OP_0x28),     // 0x28
+            new Instruction("JR Z, ${0:x2}",           1, 8,  OP_0x28),     // 0x28
             new Instruction("ADD HL, HL",              0, 8,  OP_0x29),     // 0x29
             new Instruction("LD A, (HL+)",             0, 8,  OP_0x2A),     // 0x2A
             new Instruction("DEC HL",                  0, 8,  OP_0x2B),     // 0x2B
