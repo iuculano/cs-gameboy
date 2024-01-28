@@ -23,8 +23,8 @@ public class Processor
     internal InterruptHandler interruptHandler;
     internal InstructionSet   instructionSet;
 
-    public bool IME          { get; internal set; }
-    public bool NeedsEIDelay { get; internal set; }
+    public bool IME        { get; internal set; }
+    public bool IMEPending { get; internal set; }
 
     public Processor(MemoryBus memory, InterruptHandler interruptHandler)
     {
@@ -68,27 +68,25 @@ public class Processor
 
         // Get interrupts that are both enabled and signaled
         // Need to exit the HALT state even if IME is false
-        if (interruptHandler.PendingInterrupts != 0)
+        var pending = interruptHandler.PendingInterrupts;
+        if (pending != 0)
         {
             isHalted = false;
         }
 
-        // Don't service interrupts if IME is false
-        if (IME == false)
+        // If this is set, EI was called and IME is trying to enable
+        // It should be delayed by one instruction, so we set it here rather
+        // than in EI
+        if (IMEPending)
         {
-            // Handle the HALT bug - IME is disabled and there's a pending
-            // interrupt. PC should fail to increment in the CPU
-            if (isHalted && interruptHandler.PendingInterrupts != 0)
-            {
-                isHaltBug = true;
-            }
-
+            IMEPending = false;
+            IME        = true;
             return;
         }
 
-        // Delay for one instruction after EI, IME is guaranteed to be true
-        // if this is set
-        if (NeedsEIDelay)
+        // Don't service interrupts if IME is false - we should immediately
+        // return to the CPU trying to execute the next instruction
+        if (IME == false)
         {
             NeedsEIDelay = false;
             return;
@@ -97,31 +95,31 @@ public class Processor
         // Bit      : 7 | 6 | 5 | 4	     | 3      | 2     | 1   | 0
         // Interrupt: X | X | X | Joypad | Serial | Timer | LCD | VBlank
         // Only process one at a time - if we process an interrupt, just return
-        if (interruptHandler.PendingInterrupts.HasFlag(InterruptType.VBlank))
+        if (pending.HasFlag(InterruptType.VBlank))
         {
             CallInterruptVector(0x0040, InterruptType.VBlank);
             return;
         }
 
-        if (interruptHandler.PendingInterrupts.HasFlag(InterruptType.LCD))
+        if (pending.HasFlag(InterruptType.LCD))
         {
             CallInterruptVector(0x0048, InterruptType.LCD);
             return;
         }
 
-        if (interruptHandler.PendingInterrupts.HasFlag(InterruptType.Timer))
+        if (pending.HasFlag(InterruptType.Timer))
         {
             CallInterruptVector(0x0050, InterruptType.Timer);
             return;
         }
 
-        if (interruptHandler.PendingInterrupts.HasFlag(InterruptType.Serial))
+        if (pending.HasFlag(InterruptType.Serial))
         {
             CallInterruptVector(0x0058, InterruptType.Serial);
             return;
         }
 
-        if (interruptHandler.PendingInterrupts.HasFlag(InterruptType.Joypad))
+        if (pending.HasFlag(InterruptType.Joypad))
         {
             CallInterruptVector(0x0060, InterruptType.Joypad);
             return;
@@ -140,10 +138,10 @@ public class Processor
         }
 
 
-        if (isHaltBug)
+        // Simply skip stepping the CPU when we're halted
+        if (isHalted)
         {
-            // PC shouldn't move if we've triggered this, so just move it back
-            registers.PC -= 1;
+            return 0;
         }
 
         int opcode = memory.ReadByte(registers.PC);
