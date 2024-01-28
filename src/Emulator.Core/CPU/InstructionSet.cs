@@ -237,7 +237,7 @@ public partial class InstructionSet
             new Instruction("ADD A, ${0:x2}",          1, 8,  OP_0xC6),     // 0xC6
             new Instruction("RST 00H",                 0, 16, OP_0xC7),     // 0xC7
             new Instruction("RET Z",                   0, 8,  OP_0xC8),     // 0xC8
-            new Instruction("RET",                     0, 4,  OP_0xC9),     // 0xC9
+            new Instruction("RET",                     0, 16, OP_0xC9),     // 0xC9
             new Instruction("JP Z, ${0:x4}",           2, 12, OP_0xCA),     // 0xCA
             new Instruction("PREFIX",                  0, 4,  OP_0xFF),     // 0xCB
             new Instruction("CALL Z, ${0:x4}",         2, 12, OP_0xCC),     // 0xCC - Conditional
@@ -843,7 +843,7 @@ public partial class InstructionSet
     private void OP_0xF0(byte operand)   => processor.registers.A = processor.memory.ReadByte((ushort)(0xFF00 + operand));
     private void OP_0xF1()               => processor.registers.AF = (ushort)(Pop() & 0b_11111111_11110000);
     private void OP_0xF2()               => processor.registers.A = processor.memory.ReadByte((ushort)(0xFF00 + processor.registers.C));
-    private void OP_0xF3()               => processor.IME = false;
+    private void OP_0xF3()               => Di();
     private void OP_0xF5()               => Push(processor.registers.AF);
     private void OP_0xF6(byte   operand) => Or(operand);
     private void OP_0xF7()               => Rst(0x0030);
