@@ -6,7 +6,7 @@ public partial class InstructionSet
 {
     private void Scf()
     {
-        SetFlags(CPUFlags.Carry,     true);
+        SetFlags(CPUFlags.Carry,      true);
         SetFlags(CPUFlags.Subtract,  false);
         SetFlags(CPUFlags.HalfCarry, false);
     }
@@ -20,8 +20,7 @@ public partial class InstructionSet
 
     private void Ei()
     {
-        processor.IME          = true;
-        processor.NeedsEIDelay = true;
+        processor.IMEPending = true;
     }
 
     private void Di()
@@ -31,6 +30,25 @@ public partial class InstructionSet
 
     private void Halt()
     {
-        processor.isHalted = true;
+        // https://gbdev.io/pandocs/halt.html
+
+        if (processor.IME)
+        {
+            processor.isHalted = true;
+        }
+
+        else
+        {
+            if (processor.interruptHandler.PendingInterrupts != 0)
+            {
+                // Halt bug
+                processor.registers.PC -= 1;
+            }
+
+            else
+            {
+                processor.isHalted = true;
+            }
+        }
     }
 }
