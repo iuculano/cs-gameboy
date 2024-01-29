@@ -167,11 +167,6 @@ namespace Enulator.Core.PPU
         private LCDStatusInterrupt InterruptSelect
         {
             get => (LCDStatusInterrupt)(memory.STAT & 0b_01111000);
-            set
-            {
-                var otherBits = memory.STAT & 0b_00000111;
-                memory.STAT   = (byte)(otherBits | (0b_10000000 | (int)value));
-            }
         }
 
         private LCDStatusMode Mode
@@ -251,6 +246,15 @@ namespace Enulator.Core.PPU
                     case LCDStatusMode.VBlank:
                         if (this.cycles >= VBlankCycles)
                         {
+                            // I think this is OK to check here because this will update every
+                            // CPU step?
+                            // https://forums.nesdev.org/viewtopic.php?t=16434
+                            if (memory.LYC == memory.LY)
+                            {
+                                // https://gbdev.io/pandocs/STAT.html#ff45--lyc-ly-compare
+                                interruptHandler.Request(InterruptType.LCD);
+                            }
+
                             memory.LY++;
 
                             if (memory.LY >= 154)
@@ -285,16 +289,6 @@ namespace Enulator.Core.PPU
                         }
 
                         break;
-                }
-
-                // I think this is OK to check here because this will update every
-                // CPU step?
-                // https://forums.nesdev.org/viewtopic.php?t=16434
-                if (memory.LYC == memory.LY)
-                {
-                    // https://gbdev.io/pandocs/STAT.html#ff45--lyc-ly-compare
-                    InterruptSelect = LCDStatusInterrupt.LYC;
-                    interruptHandler.Request(InterruptType.LCD);
                 }
             }
 
