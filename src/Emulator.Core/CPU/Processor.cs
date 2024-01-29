@@ -88,7 +88,6 @@ public class Processor
         // return to the CPU trying to execute the next instruction
         if (IME == false)
         {
-            NeedsEIDelay = false;
             return;
         }
 
@@ -141,7 +140,10 @@ public class Processor
         // Simply skip stepping the CPU when we're halted
         if (isHalted)
         {
-            return 0;
+            // This seems wrong but prevents the rest of the hardware from
+            // locking up because the CPU isn't stepping to generate cycles for
+            // them to work off of 
+            return 4;
         }
 
         int opcode = memory.ReadByte(registers.PC);
