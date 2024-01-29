@@ -33,6 +33,13 @@ public partial class MemoryBus
         OAM  = new byte[0xA0];   // 0xFE00 - 0xFE9F
         MMIO = new byte[0x80];   // 0xFF00 - 0xFF7F
         HRAM = new byte[0x80];   // 0xFF80 - 0xFFFE
+
+        // Set a few default values on bootup based on BGB
+        JOYP = 0xCF;
+        SC   = 0x7E;
+        IF   = 0xE1;
+        TAC  = 0xF8;
+        STAT = 0x84;
     }
 
     public void Connect(Cartridge cartridge)
